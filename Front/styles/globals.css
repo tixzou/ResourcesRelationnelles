@@ -4,9 +4,14 @@
 
 @source '../node_modules/@heroui/theme/dist/**/*.{js,ts,jsx,tsx}';
 
-@custom-variant dark (&:is(.dark *));
+/* Supprime ou commente cette ligne si tu ne veux jamais de mode sombre */
+/* @custom-variant dark (&:is(.dark *)); */
 
 @theme {
     --font-sans: "font", sans-serif;
     --font-mono: "monospace", monospace;
+    
+    /* Forcer les couleurs de fond et de texte par défaut */
+    --color-background: #ffffff;
+    --color-foreground: #111827;
 }

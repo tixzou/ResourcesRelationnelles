@@ -47,6 +47,12 @@ export default function NavbarComponent() {
 
       <NavbarContent justify="end" className="gap-4">
         <NavbarItem className="hidden sm:flex">
+          <Link color="foreground" href="/" className="hover:text-[#003E7E]">
+            Accueil
+          </Link>
+        </NavbarItem>
+
+        <NavbarItem className="hidden sm:flex">
           <Link color="foreground" href="/ressources" className="hover:text-[#003E7E]">
             Ressources
           </Link>
@@ -62,6 +68,14 @@ export default function NavbarComponent() {
       <NavbarMenu className="pt-6">
         <NavbarMenuItem>
           <Link 
+            color="foreground" 
+            className="w-full text-lg py-2" 
+            href="/" 
+            onPress={() => setIsMenuOpen(false)} 
+          >
+            Accueil
+          </Link>
+           <Link 
             color="foreground" 
             className="w-full text-lg py-2" 
             href="/ressources" 
