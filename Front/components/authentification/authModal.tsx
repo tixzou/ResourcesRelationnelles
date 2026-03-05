@@ -9,6 +9,7 @@ import {
 import { Button } from "@heroui/button";
 import { Input } from "@heroui/input";
 import { Link } from "@heroui/link";
+import { Checkbox } from "@heroui/checkbox";
 import { useState } from "react";
 import React from "react";
 
@@ -98,42 +99,56 @@ export const EyeFilledIcon = (props: any) => {
 };
 
 
+/* ... vos imports et icônes restent identiques ... */
 
-
-export default function authModal() {
-    // Utilisation du hook useDisclosure pour gérer l'état d'ouverture du modal
+export default function AuthModal() {
+    // Gestion de l'ouverture du modal et du mode (connexion/inscription)
     const { isOpen, onOpen, onOpenChange } = useDisclosure();
     const [authMode, setAuthMode] = useState<"login" | "register">("login");
 
+    // Fonction pour ouvrir le modal en mode connexion
     const handleOpen = () => {
         setAuthMode("login");
         onOpen();
     };
 
-    // État pour gérer la visibilité du mot de passe
+    // Gestion de la visibilité des mots de passe
     const [isVisible, setIsVisible] = React.useState(false);
+    const [isVisibleSecond, setIsVisibleSecond] = React.useState(false);
     const toggleVisibility = () => setIsVisible(!isVisible);
+    const toggleVisibilitySecond = () => setIsVisibleSecond(!isVisibleSecond);
 
-    // États pour stocker les valeurs des champs de connexion
+    // États pour les champs de connexion
     const [emailConnexion, setEmailConnexion] = useState<string>("");
     const [passwordConnexion, setPasswordConnexion] = useState<string>("");
 
+    // États pour les champs d'inscription
     const [firstName, setFirstName] = useState<string>("");
     const [lastName, setLastName] = useState<string>("");
     const [emailInscription, setEmailInscription] = useState<string>("");
     const [passwordInscription, setPasswordInscription] = useState<string>();
     const [confirmPasswordInscription, setConfirmPasswordInscription] = useState<string>();
 
+    // Gestion des CGU et de la politique de confidentialité
+    const [acceptedCGU, setAcceptedCGU] = useState<boolean>(false);
+    const [readPrivacy, setReadPrivacy] = useState<boolean>(false);
+
     return (
         <>
             <Button
-                className="hover:bg-[#003E7E] hover:text-white text-[#003E7E]"
+                className="bg-[#003E7E] text-white"
                 onPress={handleOpen}
             >
                 Se connecter
             </Button>
 
-            <Modal isOpen={isOpen} onOpenChange={onOpenChange} placement="top-center">
+            <Modal
+                isOpen={isOpen}
+                onOpenChange={onOpenChange}
+                placement="center"
+                backdrop="blur"
+                size="md"
+            >
                 <ModalContent>
                     {(onClose) => (
                         <>
@@ -143,19 +158,21 @@ export default function authModal() {
 
                             <ModalBody>
                                 {authMode === "login" ? (
-                                    <>
+                                    <div className="flex flex-col gap-4">
                                         <Input
                                             label="Email"
                                             variant="bordered"
+                                            placeholder="exemple@mail.com"
                                             onChange={(e) => setEmailConnexion(e.target.value)}
                                         />
                                         <Input
                                             label="Mot de passe"
                                             variant="bordered"
+                                            placeholder="******"
                                             type={isVisible ? "text" : "password"}
                                             endContent={
-                                                <button onClick={toggleVisibility} type="button">
-                                                    {isVisible ? <EyeSlashFilledIcon /> : <EyeFilledIcon />}
+                                                <button className="focus:outline-none" onClick={toggleVisibility} type="button">
+                                                    {isVisible ? <EyeSlashFilledIcon className="text-2xl text-default-400" /> : <EyeFilledIcon className="text-2xl text-default-400" />}
                                                 </button>
                                             }
                                             onChange={(e) => setPasswordConnexion(e.target.value)}
@@ -165,59 +182,88 @@ export default function authModal() {
                                                 Mot de passe oublié ?
                                             </Link>
                                         </div>
-                                    </>
+                                    </div>
                                 ) : (
-                                    <>
+                                    <div className="flex flex-col gap-4">
                                         <p className="text-sm text-default-500">
                                             Rejoignez la communauté (RE)Sources Relationnelles.
                                         </p>
-                                        <div className="flex-col flex gap-4">
-                                            <div className="flex w-full gap-4">
-                                                <Input
-                                                    label="Prénom"
-                                                    placeholder="Entrez votre prénom"
-                                                    variant="bordered"
-                                                    onChange={(e) => setFirstName(e.target.value)}
-                                                />
-                                                <Input
-                                                    label="Nom"
-                                                    placeholder="Entrez votre nom"
-                                                    variant="bordered"
-                                                    onChange={(e) => setLastName(e.target.value)}
-                                                />
-                                            </div>
+
+                                        <div className="flex flex-col sm:flex-row gap-4">
                                             <Input
-                                                label="Email"
-                                                placeholder="Entrez votre email"
+                                                label="Prénom"
+                                                placeholder="Jean"
                                                 variant="bordered"
-                                                onChange={(e) => setEmailInscription(e.target.value)}
+                                                className="w-full"
+                                                onChange={(e) => setFirstName(e.target.value)}
                                             />
                                             <Input
-                                                label="Mot de passe"
-                                                placeholder="******"
+                                                label="Nom"
+                                                placeholder="Dupont"
                                                 variant="bordered"
-                                                type={isVisible ? "text" : "password"}
-                                                endContent={
-                                                    <button onClick={toggleVisibility} type="button">
-                                                        {isVisible ? <EyeSlashFilledIcon /> : <EyeFilledIcon />}
-                                                    </button>
-                                                }
-                                                onChange={(e) => setPasswordInscription(e.target.value)}
-                                            />
-                                             <Input
-                                                label="Confirmer le mot de passe"
-                                                placeholder="******"
-                                                variant="bordered"
-                                                type={isVisible ? "text" : "password"}
-                                                endContent={
-                                                    <button onClick={toggleVisibility} type="button">
-                                                        {isVisible ? <EyeSlashFilledIcon /> : <EyeFilledIcon />}
-                                                    </button>
-                                                }
-                                                onChange={(e) => setConfirmPasswordInscription(e.target.value)}
+                                                className="w-full"
+                                                onChange={(e) => setLastName(e.target.value)}
                                             />
                                         </div>
-                                    </>
+
+                                        <Input
+                                            label="Email"
+                                            placeholder="exemple@email.com"
+                                            variant="bordered"
+                                            onChange={(e) => setEmailInscription(e.target.value)}
+                                        />
+                                        <Input
+                                            label="Mot de passe"
+                                            placeholder="******"
+                                            variant="bordered"
+                                            type={isVisible ? "text" : "password"}
+                                            endContent={
+                                                <button className="focus:outline-none" onClick={toggleVisibility} type="button">
+                                                    {isVisible ? <EyeSlashFilledIcon className="text-2xl text-default-400" /> : <EyeFilledIcon className="text-2xl text-default-400" />}
+                                                </button>
+                                            }
+                                            onChange={(e) => setPasswordInscription(e.target.value)}
+                                        />
+                                        <Input
+                                            label="Confirmer le mot de passe"
+                                            placeholder="******"
+                                            variant="bordered"
+                                            type={isVisibleSecond ? "text" : "password"}
+                                            endContent={
+                                                <button className="focus:outline-none" onClick={toggleVisibilitySecond} type="button">
+                                                    {isVisibleSecond ? <EyeSlashFilledIcon className="text-2xl text-default-400" /> : <EyeFilledIcon className="text-2xl text-default-400" />}
+                                                </button>
+                                            }
+                                            onChange={(e) => setConfirmPasswordInscription(e.target.value)}
+                                        />
+                                        <div className="flex flex-col gap-2">
+                                            <Checkbox
+                                                isSelected={acceptedCGU}
+                                                onValueChange={setAcceptedCGU}
+                                                size="sm"
+                                                classNames={{ label: "text-tiny text-gray-500" }}
+                                                color="default"
+                                            >
+                                                J’accepte les{" "}
+                                                <Link href="#" className="text-tiny text-[#003E7E] underline">
+                                                    Conditions Générales d’Utilisation
+                                                </Link>
+                                            </Checkbox>
+
+                                            <Checkbox
+                                                isSelected={readPrivacy}
+                                                onValueChange={setReadPrivacy}
+                                                size="sm"
+                                                classNames={{ label: "text-tiny text-gray-500" }}
+                                                color="default"
+                                            >
+                                                J’ai lu la{" "}
+                                                <Link href="#" className="text-tiny text-[#003E7E] underline">
+                                                    Politique de confidentialité
+                                                </Link>
+                                            </Checkbox>
+                                        </div>
+                                    </div>
                                 )}
                             </ModalBody>
 
@@ -226,7 +272,7 @@ export default function authModal() {
                                     {authMode === "login" ? "Se connecter" : "S'inscrire"}
                                 </Button>
 
-                                <div className="text-center w-full">
+                                <div className="text-center w-full pb-2">
                                     <p className="text-sm text-gray-500">
                                         {authMode === "login"
                                             ? "Vous n'avez pas encore de compte ?"
@@ -248,3 +294,4 @@ export default function authModal() {
         </>
     );
 }
+
