@@ -1,13 +1,13 @@
 "use client";
 
-import { 
-  Navbar, 
-  NavbarBrand, 
-  NavbarContent, 
-  NavbarItem, 
-  NavbarMenuToggle, 
-  NavbarMenu, 
-  NavbarMenuItem 
+import {
+  Navbar,
+  NavbarBrand,
+  NavbarContent,
+  NavbarItem,
+  NavbarMenuToggle,
+  NavbarMenu,
+  NavbarMenuItem
 } from "@heroui/navbar";
 import { Link } from "@heroui/link";
 import Image from "next/image";
@@ -18,12 +18,12 @@ export default function NavbarComponent() {
   const [isMenuOpen, setIsMenuOpen] = useState<boolean>(false);
 
   return (
-    <Navbar 
-      isMenuOpen={isMenuOpen} 
-      onMenuOpenChange={setIsMenuOpen} 
-      disableAnimation={false} 
-      isBordered 
-      shouldHideOnScroll 
+    <Navbar
+      isMenuOpen={isMenuOpen}
+      onMenuOpenChange={setIsMenuOpen}
+      disableAnimation={false}
+      isBordered
+      shouldHideOnScroll
       className="border-b-1 border-[#003E7E]"
     >
       <NavbarContent className="sm:hidden" justify="start">
@@ -32,11 +32,18 @@ export default function NavbarComponent() {
 
       <NavbarBrand className="gap-2">
         <Image
+          src="/ministere.png"
+          width={500}
+          height={500}
+          alt="Logo du Ministère de la Santé et de la Prévention"
+          className="w-24 h-auto object-contain hidden sm:inline"
+        />
+        <Image
           src="/favicon.ico"
           width={50}
           height={50}
           alt="Logo (RE)Sources Relationnelles"
-          className="w-8 h-auto object-contain opacity-80 hidden sm:inline"
+          className="w-16 h-auto object-contain hidden sm:inline"
         />
         <Link href="/" className="flex items-center">
           <p className="font-semibold text-black xs:text-base">
@@ -57,7 +64,7 @@ export default function NavbarComponent() {
             Ressources
           </Link>
         </NavbarItem>
-        
+
         <span className="text-gray-500 hidden sm:flex">|</span>
 
         <NavbarItem className="hidden sm:flex">
@@ -67,19 +74,19 @@ export default function NavbarComponent() {
 
       <NavbarMenu className="pt-6">
         <NavbarMenuItem>
-          <Link 
-            color="foreground" 
-            className="w-full text-lg py-2" 
-            href="/" 
-            onPress={() => setIsMenuOpen(false)} 
+          <Link
+            color="foreground"
+            className="w-full text-lg py-2"
+            href="/"
+            onPress={() => setIsMenuOpen(false)}
           >
             Accueil
           </Link>
-           <Link 
-            color="foreground" 
-            className="w-full text-lg py-2" 
-            href="/ressources" 
-            onPress={() => setIsMenuOpen(false)} 
+          <Link
+            color="foreground"
+            className="w-full text-lg py-2"
+            href="/ressources"
+            onPress={() => setIsMenuOpen(false)}
           >
             Ressources
           </Link>
@@ -87,7 +94,7 @@ export default function NavbarComponent() {
 
         <NavbarMenuItem>
           <div className="pt-4 border-t border-gray-100">
-             <AuthModal />
+            <AuthModal />
           </div>
         </NavbarMenuItem>
       </NavbarMenu>

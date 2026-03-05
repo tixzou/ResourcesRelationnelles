@@ -3,6 +3,7 @@ import { Button } from "@heroui/button";
 import { Search, SlidersHorizontal, ChevronDown } from "lucide-react";
 
 export default function ResourcesHeader() {
+  
   return (
     <div className="w-full">
       <section className="bg-[#1B365D] w-full py-12 px-6 sm:px-12 lg:px-24">
