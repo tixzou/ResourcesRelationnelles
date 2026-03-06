@@ -1,0 +1,36 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum Role {
+  CITOYEN
+  MODERATEUR
+  ADMINISTRATEUR
+  SUPER_ADMINISTRATEUR
+}
+
+model User {
+  id        Int        @id @default(autoincrement())
+  email     String     @unique
+  password  String
+  role      Role       @default(CITOYEN)
+  createdAt DateTime   @default(now())
+  
+  resources Resource[]
+}
+
+model Resource {
+  id          Int      @id @default(autoincrement())
+  title       String
+  content     String?
+  type        String   // Ex: VIDEO, ARTICLE, JEU
+  isPublic    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  
+  authorId    Int
+  author      User     @relation(fields: [authorId], references: [id])
+}
