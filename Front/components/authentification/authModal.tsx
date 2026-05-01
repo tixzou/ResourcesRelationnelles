@@ -99,8 +99,6 @@ export const EyeFilledIcon = (props: any) => {
 };
 
 
-/* ... vos imports et icônes restent identiques ... */
-
 export default function AuthModal() {
     // Gestion de l'ouverture du modal et du mode (connexion/inscription)
     const { isOpen, onOpen, onOpenChange } = useDisclosure();
