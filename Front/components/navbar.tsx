@@ -14,24 +14,15 @@ import Image from "next/image";
 import AuthModal from "./authentification/authModal";
 import { useState, useEffect } from "react";
 import { Button } from "@heroui/button";
+import { useSession, signOut } from "next-auth/react";
 
 export default function NavbarComponent() {
   const [isMenuOpen, setIsMenuOpen] = useState<boolean>(false);
-  const [userName, setUserName] = useState<string | null>(null);
+  const { data: session } = useSession();
 
-  useEffect(() => {
-    const storedName = localStorage.getItem("user_name");
-    if (storedName) {
-      setUserName(storedName);
-    }
-  }, []);
 
   const handleLogout = () => {
-    localStorage.removeItem("app_token");
-    localStorage.removeItem("user_id");
-    localStorage.removeItem("user_name");
-    setUserName(null);
-    window.location.reload();
+    signOut();
   };
   return (
     <Navbar
@@ -90,10 +81,10 @@ export default function NavbarComponent() {
         <span className="text-gray-500 hidden sm:flex">|</span>
 
         <NavbarItem className="hidden sm:flex">
-          {userName ? (
+          {session?.user?.name ? (
             <div className="flex items-center gap-4">
               <span className="text-sm font-medium text-[#003E7E]">
-                Bonjour, <strong>{userName}</strong>
+                Bonjour, <strong>{session?.user?.name}</strong>
               </span>
               <Button
                 size="sm"

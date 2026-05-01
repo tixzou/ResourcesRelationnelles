@@ -91,10 +91,17 @@ export default function AuthModal() {
 
   const handleRegister = async (data: userInscriptionData) => {
     try {
-      const response = await fetch("/api/register", {
+      const payload = {
+        firstName: data.firstName,
+        lastName: data.lastName,
+        email: data.emailInscription,
+        password: data.passwordInscription,
+      };
+
+      const response = await fetch("http://localhost:3001/auth/register", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(data),
+        body: JSON.stringify(payload),
       });
 
       if (!response.ok) {
@@ -108,8 +115,8 @@ export default function AuthModal() {
 
       const res = await signIn("credentials", {
         redirect: false,
-        email: data.emailInscription,
-        password: data.passwordInscription,
+        email: payload.email,
+        password: payload.password,
       });
 
       if (res?.error) {
@@ -252,8 +259,8 @@ export default function AuthModal() {
                         errorMessage={errors.passwordConnexion?.message as string}
                       />
                       <div className="flex justify-end">
-                        <span 
-                          className="text-[#003E7E] cursor-pointer text-sm hover:underline" 
+                        <span
+                          className="text-[#003E7E] cursor-pointer text-sm hover:underline"
                           onClick={() => {
                             reset();
                             setAuthMode("forgotPassword");
@@ -405,8 +412,8 @@ export default function AuthModal() {
                       {authMode === "login" && (
                         <>
                           Vous n'avez pas encore de compte ?{" "}
-                          <span 
-                            className="text-[#003E7E] font-bold cursor-pointer hover:underline" 
+                          <span
+                            className="text-[#003E7E] font-bold cursor-pointer hover:underline"
                             onClick={() => { reset(); setAuthMode("register"); }}
                           >
                             S'inscrire
@@ -416,8 +423,8 @@ export default function AuthModal() {
                       {authMode === "register" && (
                         <>
                           Vous avez déjà un compte ?{" "}
-                          <span 
-                            className="text-[#003E7E] font-bold cursor-pointer hover:underline" 
+                          <span
+                            className="text-[#003E7E] font-bold cursor-pointer hover:underline"
                             onClick={() => { reset(); setAuthMode("login"); }}
                           >
                             Se connecter
@@ -427,8 +434,8 @@ export default function AuthModal() {
                       {authMode === "forgotPassword" && (
                         <>
                           Vous vous souvenez de votre mot de passe ?{" "}
-                          <span 
-                            className="text-[#003E7E] font-bold cursor-pointer hover:underline" 
+                          <span
+                            className="text-[#003E7E] font-bold cursor-pointer hover:underline"
                             onClick={() => { reset(); setAuthMode("login"); }}
                           >
                             Retour à la connexion
