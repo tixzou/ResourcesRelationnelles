@@ -1,39 +1,86 @@
-  datasource db {
-    provider = "postgresql"
-    url      = env("DATABASE_URL")    
-  }
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")    
+}
 
-  generator client {
-    provider = "prisma-client-js"
-  }
+generator client {
+  provider = "prisma-client-js"
+}
 
-  enum Role {
-    CITOYEN
-    MODERATEUR
-    ADMINISTRATEUR
-    SUPER_ADMINISTRATEUR
-  }
+enum Role {
+  CITOYEN
+  MODERATEUR
+  ADMINISTRATEUR
+  SUPER_ADMINISTRATEUR
+}
 
-  model User {
-    id        Int        @id @default(autoincrement())
-    email     String     @unique
-    password  String
-    role      Role       @default(CITOYEN)
-    firstName String     
-    lastName  String    
-    createdAt DateTime   @default(now())
-    
-    resources Resource[]
-  }
+model User {
+  id        Int        @id @default(autoincrement())
+  email     String     @unique
+  password  String
+  role      Role       @default(CITOYEN)
+  firstName String     
+  lastName  String    
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt @default(now())
+  
+  // Relations inverses (ce que l'utilisateur possède)
+  ressources        Ressource[]
+  comments         Comment[]
+  messagesSent     Message[]  @relation("SentMessages")
+  messagesReceived Message[]  @relation("ReceivedMessages")
+}
 
-  model Resource {
-    id          Int      @id @default(autoincrement())
-    title       String
-    content     String?
-    type        String   // Ex: VIDEO, ARTICLE, JEU
-    isPublic    Boolean  @default(true)
-    createdAt   DateTime @default(now())
-    
-    authorId    Int
-    author      User     @relation(fields: [authorId], references: [id])
-  }
+model Category {
+  id        Int        @id @default(autoincrement())
+  name      String     @unique
+  
+  //Une catégorie peut avoir plusieurs ressources
+  ressources Ressource[]
+}
+
+model Ressource {
+  id          Int      @id @default(autoincrement())
+  title       String
+  content     String?  // Le contenu peut être du texte, un lien vidéo, etc.
+  type        String   // Ex: VIDEO, ARTICLE, JEU
+  isPublic    Boolean  @default(true) // Permet de gérer les ressources privées/publiques
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt @default(now())
+  
+  // Clés étrangères et Relations
+  authorId    Int
+  author      User     @relation(fields: [authorId], references: [id])
+  
+  categoryId  Int?     // Optionnel : au cas où une ressource n'a pas encore de catégorie
+  category    Category? @relation(fields: [categoryId], references: [id])
+  
+  comments    Comment[]
+}
+
+model Comment {
+  id          Int      @id @default(autoincrement())
+  content     String
+  createdAt   DateTime @default(now())
+  
+  //Un commentaire appartient à un User et à une Ressource
+  authorId    Int
+  author      User     @relation(fields: [authorId], references: [id])
+  
+  ressourceId  Int
+  // onDelete: Cascade signifie que si on supprime la ressource, on supprime ses commentaires
+  ressource    Ressource @relation(fields: [ressourceId], references: [id], onDelete: Cascade) 
+}
+
+model Message {
+  id          Int      @id @default(autoincrement())
+  content     String
+  createdAt   DateTime @default(now())
+  
+  // Relations pour la messagerie entre participants (comme demandé dans le sujet)
+  senderId    Int
+  sender      User     @relation("SentMessages", fields: [senderId], references: [id])
+  
+  receiverId  Int
+  receiver    User     @relation("ReceivedMessages", fields: [receiverId], references: [id])
+}
