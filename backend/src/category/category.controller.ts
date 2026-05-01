@@ -1,8 +1,8 @@
 import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards } from '@nestjs/common';
 import { ApiBearerAuth } from '@nestjs/swagger';
-import { AuthGuard } from 'src/auth.guard';
-import { RolesGuard } from 'src/roles/guard';
-import { Roles } from 'src/roles/decorator';
+import { AuthGuard } from '../auth.guard';
+import { RolesGuard } from '../roles/guard';
+import { Roles } from '../roles/decorator';
 import { Role } from '@prisma/client';
 import { CategoryService } from './category.service';
 import { CreateCategoryDto } from './dto/create-category.dto';
