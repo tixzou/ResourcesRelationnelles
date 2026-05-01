@@ -48,6 +48,7 @@ const authOptions: NextAuthOptions = {
     // 2. On passe le token à la session pour que le Front puisse l'utiliser
     async session({ session, token }) {
       if (session.user) {
+        (session.user as any).id = token.sub; // <--- AJOUTE CETTE LIGNE
         (session.user as any).role = token.role;
         (session as any).accessToken = token.accessToken;
       }

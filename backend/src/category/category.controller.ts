@@ -19,4 +19,10 @@ export class CategoryController {
   create(@Body() createCategoryDto: CreateCategoryDto) {
     return this.categoryService.create(createCategoryDto);
   }
+
+  // 👇 AJOUTE CETTE MÉTHODE ICI 👇
+  @Get()
+  findAll() {
+    return this.categoryService.findAll();
+  }
 }
