@@ -7,16 +7,32 @@ import {
   NavbarItem,
   NavbarMenuToggle,
   NavbarMenu,
-  NavbarMenuItem
+  NavbarMenuItem,
 } from "@heroui/navbar";
 import { Link } from "@heroui/link";
 import Image from "next/image";
 import AuthModal from "./authentification/authModal";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { Button } from "@heroui/button";
 
 export default function NavbarComponent() {
   const [isMenuOpen, setIsMenuOpen] = useState<boolean>(false);
+  const [userName, setUserName] = useState<string | null>(null);
 
+  useEffect(() => {
+    const storedName = localStorage.getItem("user_name");
+    if (storedName) {
+      setUserName(storedName);
+    }
+  }, []);
+
+  const handleLogout = () => {
+    localStorage.removeItem("app_token");
+    localStorage.removeItem("user_id");
+    localStorage.removeItem("user_name");
+    setUserName(null);
+    window.location.reload();
+  };
   return (
     <Navbar
       isMenuOpen={isMenuOpen}
@@ -27,7 +43,9 @@ export default function NavbarComponent() {
       className="border-b-1 border-[#003E7E]"
     >
       <NavbarContent className="sm:hidden" justify="start">
-        <NavbarMenuToggle aria-label={isMenuOpen ? "Fermer le menu" : "Ouvrir le menu"} />
+        <NavbarMenuToggle
+          aria-label={isMenuOpen ? "Fermer le menu" : "Ouvrir le menu"}
+        />
       </NavbarContent>
 
       <NavbarBrand className="gap-2">
@@ -60,7 +78,11 @@ export default function NavbarComponent() {
         </NavbarItem>
 
         <NavbarItem className="hidden sm:flex">
-          <Link color="foreground" href="/ressources" className="hover:text-[#003E7E]">
+          <Link
+            color="foreground"
+            href="/ressources"
+            className="hover:text-[#003E7E]"
+          >
             Ressources
           </Link>
         </NavbarItem>
@@ -68,7 +90,24 @@ export default function NavbarComponent() {
         <span className="text-gray-500 hidden sm:flex">|</span>
 
         <NavbarItem className="hidden sm:flex">
-          <AuthModal />
+          {userName ? (
+            <div className="flex items-center gap-4">
+              <span className="text-sm font-medium text-[#003E7E]">
+                Bonjour, <strong>{userName}</strong>
+              </span>
+              <Button
+                size="sm"
+                variant="flat"
+                color="danger"
+                onPress={handleLogout}
+                className="text-tiny"
+              >
+                Déconnexion
+              </Button>
+            </div>
+          ) : (
+            <AuthModal />
+          )}
         </NavbarItem>
       </NavbarContent>
 
