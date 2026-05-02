@@ -29,6 +29,12 @@ export class AdminUserController {
         return this.userService.updateRole(+id, updateRoleDto.role);
     }
 
+    @Patch(':id/toggle-active')
+    @ApiOperation({ summary: 'Désactiver ou Réactiver un compte citoyen' })
+    toggleActive(@Param('id') id: string) {
+        return this.userService.toggleActive(+id);
+    }
+
     @Delete(':id')
     deleteUser(@Param('id') id: string) {
         return this.userService.remove(+id);

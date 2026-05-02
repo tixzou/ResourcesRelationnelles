@@ -50,6 +50,21 @@ export class RessourceController {
     return this.ressourceService.remove(+id, req.user.sub);
   }
 
+  // Mettre de côté ou annuler une ressource
+  @ApiBearerAuth()
+  @UseGuards(AuthGuard)
+  @Post(':id/save')
+  toggleSaved(@Param('id') id: string, @Request() req) {
+    return this.ressourceService.toggleSaved(+id, req.user.sub);
+  }
+  // Mes ressources mises de côté
+  @ApiBearerAuth()
+  @UseGuards(AuthGuard)
+  @Get('saved/me')
+  getSaved(@Request() req) {
+    return this.ressourceService.findSaved(req.user.sub);
+  }
+
   @Get(':id')
   async findOne(@Param('id') id: string, @Request() req: any) {
     let userId: number | undefined;
@@ -84,4 +99,6 @@ export class RessourceController {
   getFavorites(@Request() req) {
     return this.ressourceService.findFavorites(req.user.sub);
   }
+
+
 }

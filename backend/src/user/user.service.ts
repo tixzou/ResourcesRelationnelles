@@ -37,4 +37,14 @@ export class UserService {
       throw new NotFoundException("Impossible de supprimer cet utilisateur");
     }
   }
+
+  async toggleActive(id: number) {
+    const user = await this.prisma.user.findUnique({ where: { id } });
+    if (!user) throw new NotFoundException("Utilisateur non trouvé");
+
+    return this.prisma.user.update({
+      where: { id },
+      data: { isActive: !user.isActive },
+    });
+  }
 }

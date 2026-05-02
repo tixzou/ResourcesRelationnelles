@@ -22,13 +22,37 @@ export class RessourceService {
   // 2. Récupérer toutes les ressources publiques (Catalogue)
   findAll() {
     return this.prisma.ressource.findMany({
-      where: { isPublic: true },
+      where: { isPublic: true, isValidated: true },
       include: {
         category: true,
         author: {
           select: { firstName: true, lastName: true }
         }
       }
+    });
+  }
+  async findEnAttente() {
+    return this.prisma.ressource.findMany({
+      where: { isValidated: false },
+      orderBy: { createdAt: 'asc' },
+      include: {
+        author: { select: { firstName: true, lastName: true, email: true } },
+        category: true,
+      },
+    });
+  }
+
+  async validate(id: number) {
+    return this.prisma.ressource.update({
+      where: { id },
+      data: { isValidated: true },
+    });
+  }
+
+  // (Optionnel) NOUVEAU : Rejeter/Supprimer une ressource
+  async reject(id: number) {
+    return this.prisma.ressource.delete({
+      where: { id },
     });
   }
 
@@ -121,6 +145,36 @@ export class RessourceService {
     return this.prisma.favorite.findMany({
       where: { userId },
       include: { ressource: { include: { category: true, author: true } } }
+    });
+  }
+
+  // Mettre de côté / Annuler
+  async toggleSaved(ressourceId: number, userId: number) {
+    const existing = await this.prisma.savedResource.findUnique({
+      where: { userId_ressourceId: { userId, ressourceId } }
+    });
+
+    if (existing) {
+      // Si elle est déjà mise de côté, on l'annule (on supprime la ligne)
+      return this.prisma.savedResource.delete({ where: { id: existing.id } });
+    }
+
+    // Sinon, on l'ajoute à la liste à lire plus tard[cite: 2]
+    return this.prisma.savedResource.create({
+      data: { userId, ressourceId }
+    });
+  }
+
+  // Récupérer la liste "À lire plus tard" de l'utilisateur
+  async findSaved(userId: number) {
+    return this.prisma.savedResource.findMany({
+      where: { userId },
+      include: {
+        ressource: {
+          include: { category: true, author: { select: { firstName: true, lastName: true } } }
+        }
+      },
+      orderBy: { createdAt: 'desc' }
     });
   }
 }

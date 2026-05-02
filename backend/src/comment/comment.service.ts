@@ -3,7 +3,7 @@ import { PrismaService } from '../prisma.service';
 
 @Injectable()
 export class CommentService {
-  constructor(private prisma: PrismaService) {}
+  constructor(private prisma: PrismaService) { }
 
   async create(data: { content: string; ressourceId: number; authorId: number; parentId?: number }) {
     return this.prisma.comment.create({
@@ -30,6 +30,17 @@ export class CommentService {
     if (comment.authorId !== userId) {
       throw new ForbiddenException("Vous n'avez pas l'autorisation de supprimer ce commentaire");
     }
+
+    return this.prisma.comment.delete({
+      where: { id }
+    });
+  }
+  async removeByAdmin(id: number) {
+    const comment = await this.prisma.comment.findUnique({
+      where: { id }
+    });
+
+    if (!comment) throw new NotFoundException('Commentaire introuvable');
 
     return this.prisma.comment.delete({
       where: { id }

@@ -44,12 +44,14 @@ export class AuthService {
     if (!user) {
       throw new UnauthorizedException('Identifiants incorrects');
     }
-
+    if (!user.isActive) {
+      throw new UnauthorizedException('Ce compte a été suspendu par un administrateur.');
+    }
     const isPasswordValid = await bcrypt.compare(pass, user.password);
     if (!isPasswordValid) {
       throw new UnauthorizedException('Identifiants incorrects');
     }
-    await this.prisma.connectionLog.create({ data: { userId: user.id } });
+    // await this.prisma.connectionLog.create({ data: { userId: user.id } });
     return this.generateToken(user);
   }
 

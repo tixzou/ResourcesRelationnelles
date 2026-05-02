@@ -21,6 +21,7 @@ model User {
   role      Role     @default(CITOYEN)
   firstName String
   lastName  String
+  isActive  Boolean  @default(true)
   createdAt DateTime @default(now())
   updatedAt DateTime @default(now()) @updatedAt
   favorites Favorite[]
@@ -31,6 +32,7 @@ model User {
   messagesSent     Message[]   @relation("SentMessages")
   messagesReceived Message[]   @relation("ReceivedMessages")
   connections ConnectionLog[]
+  savedResources SavedResource[]
 }
 
 model Category {
@@ -62,6 +64,7 @@ model Ressource {
   views            Int        @default(0)     
   favoritedBy      Favorite[]
   viewLogs         ViewLog[]
+  savedBy        SavedResource[]
 }
 
 model Comment {
@@ -117,4 +120,15 @@ model ConnectionLog {
   userId    Int
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   createdAt DateTime @default(now())
+}
+
+model SavedResource {
+  id          Int       @id @default(autoincrement())
+  userId      Int
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  ressourceId Int
+  ressource   Ressource @relation(fields: [ressourceId], references: [id], onDelete: Cascade)
+  createdAt   DateTime  @default(now())
+
+  @@unique([userId, ressourceId]) // On ne peut mettre de côté qu'une seule fois la même ressource
 }
