@@ -54,7 +54,6 @@ export class RessourceController {
   async findOne(@Param('id') id: string, @Request() req: any) {
     let userId: number | undefined;
 
-    // On extrait le token s'il existe pour identifier l'utilisateur
     const authHeader = req.headers.authorization;
     if (authHeader && authHeader.startsWith('Bearer ')) {
       try {
@@ -62,7 +61,9 @@ export class RessourceController {
         const payload = await this.jwtService.verifyAsync(token, {
           secret: this.configService.get<string>('JWT_SECRET'),
         });
-        userId = payload.sub;
+
+        // On s'assure que userId est un nombre pour Prisma
+        userId = Number(payload.sub);
       } catch (e) {
         userId = undefined;
       }

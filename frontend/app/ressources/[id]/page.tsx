@@ -22,7 +22,7 @@ import { addToast } from "@heroui/toast";
 
 export default function RessourceDetail() {
   const { id } = useParams();
-  const { data: session } = useSession();
+  const { data: session, status } = useSession();
 
   const [ressource, setRessource] = useState<any>(null);
   const [loading, setLoading] = useState(true);
@@ -55,7 +55,11 @@ export default function RessourceDetail() {
     }
   };
 
-  useEffect(() => { if (id) fetchRessource(); }, [id]);
+  useEffect(() => {
+    if (id && status !== "loading") {
+      fetchRessource();
+    }
+  }, [id, session, status]);
 
   const handlePostComment = async (content: string, parentId: number | null = null) => {
     if (!content.trim()) return;
