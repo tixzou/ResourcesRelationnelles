@@ -8,6 +8,6 @@ export class UserController {
   // Route: GET http://localhost:3001/user
   @Get()
   findAll() {
-    return this.userService.findAll();
+    return this.userService.findAllAdmin();
   }
 }

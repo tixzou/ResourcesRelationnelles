@@ -3,10 +3,16 @@ import { ApiBearerAuth } from '@nestjs/swagger';
 import { RessourceService } from './ressource.service';
 import { CreateRessourceDto } from './dto/create-ressource.dto';
 import { AuthGuard } from '../auth.guard';
+import { JwtService } from '@nestjs/jwt';
+import { ConfigService } from '@nestjs/config';
 
 @Controller('ressource')
 export class RessourceController {
-  constructor(private readonly ressourceService: RessourceService) { }
+  constructor(
+    private readonly ressourceService: RessourceService,
+    private jwtService: JwtService,
+    private configService: ConfigService,
+  ) { }
 
   // Créer une ressource
   @ApiBearerAuth()
@@ -16,7 +22,6 @@ export class RessourceController {
     return this.ressourceService.create(createRessourceDto, req.user.sub);
   }
 
-  // 👇 LA VOICI ! La route qui te manquait pour "Mes ressources" 👇
   @ApiBearerAuth()
   @UseGuards(AuthGuard)
   @Get('me')
@@ -30,7 +35,6 @@ export class RessourceController {
     return this.ressourceService.findAll();
   }
 
-  // 👇 IL TE MANQUAIT AUSSI LA MODIFICATION 👇
   @ApiBearerAuth()
   @UseGuards(AuthGuard)
   @Put(':id')
@@ -47,7 +51,36 @@ export class RessourceController {
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.ressourceService.findOne(+id); // Le "+" est CRUCIAL pour transformer "1" en 1
+  async findOne(@Param('id') id: string, @Request() req: any) {
+    let userId: number | undefined;
+
+    // On extrait le token s'il existe pour identifier l'utilisateur
+    const authHeader = req.headers.authorization;
+    if (authHeader && authHeader.startsWith('Bearer ')) {
+      try {
+        const token = authHeader.split(' ')[1];
+        const payload = await this.jwtService.verifyAsync(token, {
+          secret: this.configService.get<string>('JWT_SECRET'),
+        });
+        userId = payload.sub;
+      } catch (e) {
+        userId = undefined;
+      }
+    }
+
+    return this.ressourceService.findOne(+id, userId);
+  }
+  @ApiBearerAuth()
+  @UseGuards(AuthGuard)
+  @Post(':id/favorite')
+  toggleFavorite(@Param('id') id: string, @Request() req) {
+    return this.ressourceService.toggleFavorite(+id, req.user.sub);
+  }
+
+  @ApiBearerAuth()
+  @UseGuards(AuthGuard)
+  @Get('favorites/me')
+  getFavorites(@Request() req) {
+    return this.ressourceService.findFavorites(req.user.sub);
   }
 }

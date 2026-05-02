@@ -8,7 +8,7 @@ import { useSession } from "next-auth/react";
 import { Card, CardBody } from "@heroui/card";
 import { Divider } from "@heroui/divider";
 import { Button } from "@heroui/button";
-import { Textarea } from "@heroui/input"; 
+import { Textarea } from "@heroui/input";
 import { Avatar } from "@heroui/avatar";
 import { Chip } from "@heroui/chip";
 import { Spinner } from "@heroui/spinner";
@@ -16,25 +16,34 @@ import { Modal, ModalContent, ModalHeader, ModalBody, ModalFooter, useDisclosure
 import { Dropdown, DropdownTrigger, DropdownMenu, DropdownItem } from "@heroui/dropdown";
 
 // Icônes
-import { Calendar, MessageSquare, ArrowLeft, Reply, X, Trash2, MoreHorizontal } from "lucide-react";
+import { Calendar, MessageSquare, ArrowLeft, Reply, X, Trash2, MoreHorizontal, Heart } from "lucide-react";
 import Link from "next/link";
+import { addToast } from "@heroui/toast";
 
 export default function RessourceDetail() {
   const { id } = useParams();
   const { data: session } = useSession();
-  
+
   const [ressource, setRessource] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [mainComment, setMainComment] = useState("");
   const [replyInput, setReplyInput] = useState("");
   const [replyToId, setReplyToId] = useState<number | null>(null);
-  
+
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
   const [commentToDelete, setCommentToDelete] = useState<number | null>(null);
 
   const fetchRessource = async () => {
     try {
-      const res = await fetch(`http://localhost:3001/ressource/${id}`);
+      const headers: HeadersInit = {};
+      if ((session as any)?.accessToken) {
+        headers["Authorization"] = `Bearer ${(session as any).accessToken}`;
+      }
+
+      const res = await fetch(`http://localhost:3001/ressource/${id}`, {
+        headers: headers
+      });
+
       if (!res.ok) throw new Error("Ressource non trouvée");
       const data = await res.json();
       setRessource(data);
@@ -85,6 +94,30 @@ export default function RessourceDetail() {
     }
   };
 
+  const handleToggleFavorite = async () => {
+    if (!session) return;
+
+    try {
+      const res = await fetch(`http://localhost:3001/ressource/${id}/favorite`, {
+        method: "POST",
+        headers: {
+          "Authorization": `Bearer ${(session as any)?.accessToken}`
+        }
+      });
+
+      if (res.ok) {
+        fetchRessource();
+        addToast({
+          title: ressource.isFavorited ? "Retiré des favoris" : "Ajouté aux favoris",
+          color: ressource.isFavorited ? "default" : "danger",
+          variant: "flat"
+        });
+      }
+    } catch (error) {
+      console.error("Erreur favori:", error);
+    }
+  };
+
   if (loading) return <div className="flex justify-center p-24"><Spinner size="lg" /></div>;
   if (!ressource) return <div className="text-center p-24"><p>Ressource introuvable.</p></div>;
 
@@ -95,11 +128,30 @@ export default function RessourceDetail() {
       {/* Header DA - Bleu Marine profond */}
       <div className="bg-[#1B365D] text-white py-14 px-6 lg:px-24">
         <div className="max-w-7xl mx-auto">
-          <Button as={Link} href="/ressources" variant="light" startContent={<ArrowLeft size={18}/>} className="text-white/70 hover:text-white mb-6 p-0 h-auto font-medium">
+          <Button as={Link} href="/ressources" variant="light" startContent={<ArrowLeft size={18} />} className="text-white/70 hover:text-white mb-6 p-0 h-auto font-medium">
             Retour au catalogue
           </Button>
-          <h1 className="text-4xl font-bold mb-3 tracking-tight">{ressource.title}</h1>
-          <div className="flex items-center gap-2 text-blue-100/60 text-sm">
+          {/* Remplacement du titre simple par Titre + Coeur */}
+          <div className="flex justify-between items-center mb-3">
+            <h1 className="text-4xl font-bold tracking-tight">{ressource.title}</h1>
+
+            {/* Le bouton n'apparaît que si l'utilisateur est connecté */}
+            {session && (
+              <Button
+                isIconOnly
+                radius="full"
+                variant="flat"
+                className="bg-white/10 hover:bg-white/20 border-white/20"
+                onPress={handleToggleFavorite}
+              >
+                <Heart
+                  size={24}
+                  // text-red-500 colorie les contours, fill-red-500 remplit l'intérieur
+                  className={ressource.isFavorited ? "fill-red-500 text-red-500" : "text-white"}
+                />
+              </Button>
+            )}
+          </div>          <div className="flex items-center gap-2 text-blue-100/60 text-sm">
             <span>Par {ressource.author?.firstName} {ressource.author?.lastName}</span>
             <span>•</span>
             <Calendar size={14} />
@@ -110,17 +162,18 @@ export default function RessourceDetail() {
 
       <div className="max-w-7xl mx-auto px-6 lg:px-24 py-10 grid grid-cols-1 lg:grid-cols-3 gap-10">
         <div className="lg:col-span-2 space-y-10">
-          
+
           {/* Contenu Article */}
           <Card shadow="sm" className="border-none rounded-xl overflow-hidden">
             <CardBody className="p-10 text-gray-700 text-lg leading-relaxed">
-                <div className="flex gap-2 mb-8">
-                    <Chip color="primary" variant="flat" size="sm" className="font-bold px-3 uppercase tracking-wider">{ressource.type}</Chip>
-                    {ressource.category && <Chip variant="flat" size="sm" className="bg-gray-100 text-gray-500 font-medium px-3">● {ressource.category.name}</Chip>}
-                </div>
-                {ressource.content}
+              <div className="flex gap-2 mb-8">
+                <Chip color="primary" variant="flat" size="sm" className="font-bold px-3 uppercase tracking-wider">{ressource.type}</Chip>
+                {ressource.category && <Chip variant="flat" size="sm" className="bg-gray-100 text-gray-500 font-medium px-3">● {ressource.category.name}</Chip>}
+              </div>
+              {ressource.content}
             </CardBody>
           </Card>
+
 
           {/* Section Discussion */}
           <section className="space-y-8">
@@ -150,7 +203,7 @@ export default function RessourceDetail() {
             <div className="space-y-8">
               {rootComments.map((root: any) => {
                 const isMyComment = session && Number((session as any).user?.id) === Number(root.authorId);
-                
+
                 return (
                   <div key={root.id} className="space-y-4">
                     {/* --- BULLE RACINE --- */}
@@ -177,12 +230,12 @@ export default function RessourceDetail() {
                           </Dropdown>
                         )}
                       </div>
-                      
+
                       <p className="text-[15px] text-gray-700 leading-normal mb-5">{root.content}</p>
-                      
-                      <Button 
-                        size="sm" variant="light" 
-                        startContent={<Reply size={14}/>} 
+
+                      <Button
+                        size="sm" variant="light"
+                        startContent={<Reply size={14} />}
                         className="text-gray-500 font-bold hover:text-blue-600 px-0 h-auto"
                         onPress={() => setReplyToId(replyToId === root.id ? null : root.id)}
                       >
@@ -200,8 +253,8 @@ export default function RessourceDetail() {
                             onValueChange={setReplyInput}
                           />
                           <div className="flex justify-end gap-2">
-                             <Button size="sm" variant="light" onPress={() => setReplyToId(null)}>Annuler</Button>
-                             <Button size="sm" color="primary" className="font-bold" onPress={() => handlePostComment(replyInput, root.id)}>Répondre</Button>
+                            <Button size="sm" variant="light" onPress={() => setReplyToId(null)}>Annuler</Button>
+                            <Button size="sm" color="primary" className="font-bold" onPress={() => handlePostComment(replyInput, root.id)}>Répondre</Button>
                           </div>
                         </div>
                       )}
@@ -214,13 +267,13 @@ export default function RessourceDetail() {
                         <div key={reply.id} className="ml-10 bg-white p-5 rounded-xl border border-gray-100 shadow-sm space-y-4">
                           <div className="flex justify-between items-start">
                             <div className="flex items-center gap-3">
-                                <Avatar name={reply.author?.firstName} size="sm" className="bg-gray-200 text-gray-600 font-bold" />
-                                <div>
-                                    <p className="font-bold text-xs text-[#1B365D]">{reply.author?.firstName} {reply.author?.lastName}</p>
-                                    <p className="text-[10px] text-gray-400 font-medium">{new Date(reply.createdAt).toLocaleDateString()}</p>
-                                </div>
+                              <Avatar name={reply.author?.firstName} size="sm" className="bg-gray-200 text-gray-600 font-bold" />
+                              <div>
+                                <p className="font-bold text-xs text-[#1B365D]">{reply.author?.firstName} {reply.author?.lastName}</p>
+                                <p className="text-[10px] text-gray-400 font-medium">{new Date(reply.createdAt).toLocaleDateString()}</p>
+                              </div>
                             </div>
-                            
+
                             {/* Menu d'options pour les RÉPONSES (Nouveauté) */}
                             {isMyReply && (
                               <Dropdown placement="bottom-end">
@@ -238,9 +291,9 @@ export default function RessourceDetail() {
 
                           <p className="text-sm text-gray-700">{reply.content}</p>
 
-                          <Button 
-                            size="sm" variant="light" 
-                            startContent={<Reply size={14}/>} 
+                          <Button
+                            size="sm" variant="light"
+                            startContent={<Reply size={14} />}
                             className="text-gray-500 font-bold hover:text-blue-600 px-0 h-auto"
                             onPress={() => setReplyToId(replyToId === reply.id ? null : reply.id)}
                           >
@@ -278,21 +331,21 @@ export default function RessourceDetail() {
           <Card shadow="sm" className="border-none rounded-xl overflow-hidden">
             <div className="bg-[#1B365D] p-4 text-white font-bold text-xs uppercase tracking-widest text-center">Informations</div>
             <CardBody className="p-8 space-y-6">
-                <div className="flex items-center gap-4">
-                    <div className="p-3 bg-blue-50 rounded-xl text-[#1B365D]"><Calendar size={20}/></div>
-                    <div>
-                        <p className="text-[10px] uppercase font-bold text-gray-400 tracking-wider">Publication</p>
-                        <p className="text-sm font-bold text-[#1B365D]">{new Date(ressource.createdAt).toLocaleDateString()}</p>
-                    </div>
+              <div className="flex items-center gap-4">
+                <div className="p-3 bg-blue-50 rounded-xl text-[#1B365D]"><Calendar size={20} /></div>
+                <div>
+                  <p className="text-[10px] uppercase font-bold text-gray-400 tracking-wider">Publication</p>
+                  <p className="text-sm font-bold text-[#1B365D]">{new Date(ressource.createdAt).toLocaleDateString()}</p>
                 </div>
-                <Divider className="opacity-50" />
-                <div className="flex items-center gap-4">
-                    <Avatar isBordered color="primary" name={ressource.author?.firstName} size="md" className="ring-[#1B365D]/10" />
-                    <div>
-                        <p className="text-[10px] uppercase font-bold text-gray-400 tracking-wider">Expert / Auteur</p>
-                        <p className="text-sm font-bold text-[#1B365D]">{ressource.author?.firstName} {ressource.author?.lastName}</p>
-                    </div>
+              </div>
+              <Divider className="opacity-50" />
+              <div className="flex items-center gap-4">
+                <Avatar isBordered color="primary" name={ressource.author?.firstName} size="md" className="ring-[#1B365D]/10" />
+                <div>
+                  <p className="text-[10px] uppercase font-bold text-gray-400 tracking-wider">Expert / Auteur</p>
+                  <p className="text-sm font-bold text-[#1B365D]">{ressource.author?.firstName} {ressource.author?.lastName}</p>
                 </div>
+              </div>
             </CardBody>
           </Card>
         </aside>

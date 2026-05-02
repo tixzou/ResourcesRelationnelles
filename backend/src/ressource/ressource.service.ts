@@ -33,29 +33,29 @@ export class RessourceService {
   }
 
   // backend/src/ressource/ressource.service.ts
-  async findOne(id: number) {
-    return this.prisma.ressource.findUnique({
+  async findOne(id: number, userId?: number) {
+    await this.prisma.viewLog.create({ data: { ressourceId: id } });
+    const ressource = await this.prisma.ressource.findUnique({
       where: { id },
       include: {
-        author: true,
+        author: { select: { firstName: true, lastName: true } },
         category: true,
-        comments: {
-          include: {
-            author: {
-              select: {
-                id: true, // <--- CRUCIAL : L'ID doit être inclus ici
-                firstName: true,
-                lastName: true
-              }
-            }
-          },
-          orderBy: { createdAt: 'asc' }
-        }
+        comments: { include: { author: { select: { firstName: true, lastName: true } } } }
       }
     });
-  }
 
-  // 👇 LES NOUVEAUTÉS QUI TE MANQUAIENT 👇
+    if (!ressource) return null;
+
+    let isFavorited = false;
+    if (userId) {
+      const favorite = await this.prisma.favorite.findUnique({
+        where: { userId_ressourceId: { userId, ressourceId: id } }
+      });
+      isFavorited = !!favorite;
+    }
+
+    return { ...ressource, isFavorited };
+  }
 
   // 4. Récupérer les ressources du citoyen connecté
   findMine(authorId: number) {
@@ -100,6 +100,27 @@ export class RessourceService {
 
     return this.prisma.ressource.delete({
       where: { id }
+    });
+  }
+  // Favoris
+  async toggleFavorite(ressourceId: number, userId: number) {
+    const existing = await this.prisma.favorite.findUnique({
+      where: { userId_ressourceId: { userId, ressourceId } }
+    });
+
+    if (existing) {
+      return this.prisma.favorite.delete({ where: { id: existing.id } });
+    }
+
+    return this.prisma.favorite.create({
+      data: { userId, ressourceId }
+    });
+  }
+  // Mes favoris
+  async findFavorites(userId: number) {
+    return this.prisma.favorite.findMany({
+      where: { userId },
+      include: { ressource: { include: { category: true, author: true } } }
     });
   }
 }

@@ -8,7 +8,7 @@ export class AuthService {
   constructor(
     private prisma: PrismaService,
     private jwtService: JwtService,
-  ) {}
+  ) { }
 
   async register(
     email: string,
@@ -49,7 +49,7 @@ export class AuthService {
     if (!isPasswordValid) {
       throw new UnauthorizedException('Identifiants incorrects');
     }
-
+    await this.prisma.connectionLog.create({ data: { userId: user.id } });
     return this.generateToken(user);
   }
 
@@ -94,7 +94,7 @@ export class AuthService {
   }
 
   //Suppression du compte
-  async deleteUser(userId: number) {    
+  async deleteUser(userId: number) {
     await this.prisma.user.delete({ where: { id: userId } });
     return {
       success: true,
