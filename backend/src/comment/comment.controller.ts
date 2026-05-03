@@ -1,4 +1,4 @@
-import { Controller, Post, Delete, Body, Param, Request, UseGuards } from '@nestjs/common';
+import { Controller, Post, Delete, Body, Param, Request, UseGuards, Get } from '@nestjs/common';
 import { CommentService } from './comment.service';
 import { AuthGuard } from '../auth.guard'; // Vérifie ton chemin d'import
 
@@ -20,5 +20,10 @@ export class CommentController {
   @Delete(':id')
   async remove(@Param('id') id: string, @Request() req) {
     return this.commentService.remove(Number(id), req.user.sub);
+  }
+  
+  @Get('ressource/:id')
+  async getByRessource(@Param('id') id: string) {
+    return this.commentService.findByRessource(Number(id));
   }
 }

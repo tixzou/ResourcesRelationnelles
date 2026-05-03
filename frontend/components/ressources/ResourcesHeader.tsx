@@ -4,10 +4,10 @@ import { useEffect, useState } from "react";
 import { Input } from "@heroui/input";
 import { Button } from "@heroui/button";
 import { Tabs, Tab } from "@heroui/tabs";
-import { Search, SlidersHorizontal } from "lucide-react";
+import { Search } from "lucide-react"; // SlidersHorizontal retiré si tu ne l'utilises pas
 import { useSession } from "next-auth/react";
 
-import PublicResourcesList from "./PublicResourcesList.tsx";
+import PublicResourcesList from "./PublicResourcesList"; // .tsx retiré !
 import MyResourcesManager from "./MyResourcesManager";
 
 export default function ResourcesPage() {
@@ -15,7 +15,6 @@ export default function ResourcesPage() {
     const [selectedTab, setSelectedTab] = useState("catalogue");
     const [search, setSearch] = useState("");
     const [category, setCategory] = useState("");
-    const [type, setType] = useState("");
     const [availableCategories, setAvailableCategories] = useState<any[]>([]);
 
     useEffect(() => {
@@ -66,51 +65,50 @@ export default function ResourcesPage() {
                 </section>
 
                 <section className="w-full py-6 px-6 sm:px-12 lg:px-24">
-                    <div className="max-w-7xl mx-auto flex flex-col lg:flex-row gap-4">
+                    <div className="max-w-7xl mx-auto flex flex-col md:flex-row gap-4 items-center">
                         <Input
                             value={search}
                             onValueChange={setSearch}
-                            className="w-full lg:max-w-md"
-                            placeholder="Rechercher..."
+                            className="w-full md:flex-1"
+                            placeholder="Rechercher une ressource..."
                             startContent={<Search size={20} className="text-gray-400" />}
                             variant="bordered"
                         />
-                        <div className="flex flex-grow gap-3">
+                        <div className="flex w-full md:w-auto gap-3">
                             <select 
                                 value={category} 
                                 onChange={(e) => setCategory(e.target.value)}
-                                className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 h-10 text-sm outline-none"
+                                className="flex-1 md:w-64 bg-gray-50 border border-gray-200 rounded-xl px-4 h-10 text-sm outline-none cursor-pointer hover:bg-gray-100 transition-colors"
                             >
                                 <option value="">Toutes les catégories</option>
                                 {availableCategories.map((cat) => (
                                     <option key={cat.id} value={cat.name}>{cat.name}</option>
                                 ))}
                             </select>
-                            <select 
-                                value={type} 
-                                onChange={(e) => setType(e.target.value)}
-                                className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 h-10 text-sm outline-none"
+                            
+                            <Button 
+                                variant="flat" 
+                                className="h-10 px-6 font-medium"
+                                onPress={() => {
+                                    setSearch(""); 
+                                    setCategory(""); 
+                                }}
                             >
-                                <option value="">Tous les types</option>
-                                <option value="ARTICLE">Article</option>
-                                <option value="VIDEO">Vidéo</option>
-                            </select>
+                                Réinitialiser
+                            </Button>
                         </div>
-                        <Button variant="flat" onPress={() => {setSearch(""); setCategory(""); setType("");}}>
-                            Réinitialiser
-                        </Button>
                     </div>
                 </section>
             </div>
 
-            {/* CONTENU - C'EST ICI QUE L'ALIGNEMENT SE JOUE */}
+            {/* CONTENU */}
             <main className="max-w-7xl mx-auto px-6 sm:px-12 lg:px-24 py-12">
                 <div className="flex flex-col items-start justify-start w-full text-left">
                     {selectedTab === "catalogue" && (
-                        <PublicResourcesList search={search} category={category} type={type} />
+                        <PublicResourcesList search={search} category={category} />
                     )}
                     {selectedTab === "mes-ressources" && status === "authenticated" && (
-                        <MyResourcesManager token={(session as any)?.accessToken} search={search} category={category} type={type} />
+                        <MyResourcesManager token={(session as any)?.accessToken} search={search} category={category} />
                     )}
                 </div>
             </main>

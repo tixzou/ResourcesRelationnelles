@@ -27,10 +27,14 @@ export class RessourceService {
         category: true,
         author: {
           select: { firstName: true, lastName: true }
+        },
+        _count: {
+          select: { favoritedBy: true }
         }
       }
     });
   }
+
   async findEnAttente() {
     return this.prisma.ressource.findMany({
       where: { isValidated: false },
@@ -126,6 +130,7 @@ export class RessourceService {
       where: { id }
     });
   }
+  
   // Favoris
   async toggleFavorite(ressourceId: number, userId: number) {
     const existing = await this.prisma.favorite.findUnique({
@@ -140,6 +145,7 @@ export class RessourceService {
       data: { userId, ressourceId }
     });
   }
+  
   // Mes favoris
   async findFavorites(userId: number) {
     return this.prisma.favorite.findMany({
@@ -159,7 +165,6 @@ export class RessourceService {
       return this.prisma.savedResource.delete({ where: { id: existing.id } });
     }
 
-    // Sinon, on l'ajoute à la liste à lire plus tard[cite: 2]
     return this.prisma.savedResource.create({
       data: { userId, ressourceId }
     });
@@ -175,6 +180,49 @@ export class RessourceService {
         }
       },
       orderBy: { createdAt: 'desc' }
+    });
+  }
+
+  // =========================================================================
+  // --- NOUVELLES MÉTHODES POUR L'ADMINISTRATION ---
+  // =========================================================================
+
+  // Récupérer absolument TOUTES les ressources pour le tableau de bord Admin
+  async findAllAdmin() {
+    return this.prisma.ressource.findMany({
+      orderBy: { createdAt: 'desc' },
+      include: {
+        category: true,
+        author: { select: { firstName: true, lastName: true, email: true } },
+      },
+    });
+  }
+
+  // Suspendre une ressource (la rendre invisible du catalogue sans la supprimer)
+  async suspend(id: number) {
+    return this.prisma.ressource.update({
+      where: { id },
+      data: { isValidated: false },
+    });
+  }
+
+  // L'admin édite n'importe quelle ressource
+  async updateByAdmin(id: number, updateData: any) {
+    return this.prisma.ressource.update({
+      where: { id },
+      data: {
+        title: updateData.title,
+        content: updateData.content,
+        type: updateData.type,
+        categoryId: updateData.categoryId,
+      },
+    });
+  }
+
+  // L'admin supprime n'importe quelle ressource
+  async removeByAdmin(id: number) {
+    return this.prisma.ressource.delete({
+      where: { id }
     });
   }
 }

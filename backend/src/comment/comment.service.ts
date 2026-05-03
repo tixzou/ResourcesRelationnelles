@@ -46,4 +46,15 @@ export class CommentService {
       where: { id }
     });
   }
+
+  // Récupérer les commentaires d'une ressource
+  async findByRessource(ressourceId: number) {
+    return this.prisma.comment.findMany({
+      where: { ressourceId },
+      include: {
+        author: { select: { firstName: true, lastName: true } }
+      },
+      orderBy: { createdAt: 'asc' } // Pour avoir les plus anciens en haut (chronologique)
+    });
+  }
 }
