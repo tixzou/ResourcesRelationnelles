@@ -1,6 +1,6 @@
-import "@/styles/globals.css";
+// 👇 CORRECTION : Utilisation du chemin relatif, ça marche à 100%
+import "../styles/globals.css";
 import { Metadata, Viewport } from "next";
-import { Link } from "@heroui/link";
 import clsx from "clsx";
 
 import { Providers } from "./providers";
@@ -24,7 +24,7 @@ export const metadata: Metadata = {
 export const viewport: Viewport = {
   themeColor: [
     { media: "(prefers-color-scheme: light)", color: "white" },
-    { media: "(prefers-color-scheme: dark)", color: "black" },
+    { media: "(prefers-color-scheme: dark)", color: "white" },
   ],
 };
 
@@ -34,15 +34,17 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html suppressHydrationWarning lang="en">
+    // La classe "light" force ton HTML en mode clair
+    <html suppressHydrationWarning lang="fr" className="light text-foreground bg-background">
       <head />
       <body
         className={clsx(
-          "min-h-screen text-foreground bg-background font-sans antialiased",
+          "min-h-screen font-sans antialiased",
           fontSans.variable,
         )}
       >
-        <Providers themeProps={{ attribute: "class", defaultTheme: "dark" }}>
+        {/* On force le Provider en mode clair ici aussi */}
+        <Providers themeProps={{ attribute: "class", defaultTheme: "light", forcedTheme: "light" }}>
           <div className="relative flex flex-col h-screen">
             <NavbarComponent />
             <main className="flex-grow">

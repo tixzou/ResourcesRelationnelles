@@ -7,6 +7,7 @@ import { useRouter } from "next/navigation";
 import { Spinner } from "@heroui/spinner";
 import AdminRessourcesManager from "@/components/admin/AdminRessourcesManager";
 import AdminUsersManager from "@/components/admin/AdminUsersManager";
+import AdminStatsManager from "@/components/admin/AdminStatsManager";
 
 export default function AdminDashboard() {
     const { data: session, status } = useSession();
@@ -81,8 +82,11 @@ export default function AdminDashboard() {
                     {isAdmin && (
                         <Tab key="stats" title="Statistiques & Exports">
                             <div className="mt-6 bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
-                                <h2 className="text-xl font-bold text-gray-800 mb-4">Tableau de bord d'activité</h2>
-                                <p className="text-gray-500">Ici viendra le dashboard avec des graphiques et les boutons d'export CSV/PDF.</p>
+                                <h2 className="text-xl font-bold text-gray-800 mb-2">Tableau de bord d'activité</h2>
+                                <p className="text-gray-500 mb-6">Suivez l'évolution de la plateforme et exportez vos données.</p>
+
+                                {/* L'appel à notre nouveau composant 👇 */}
+                                <AdminStatsManager token={(session as any)?.accessToken} />
                             </div>
                         </Tab>
                     )}

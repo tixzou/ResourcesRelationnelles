@@ -4,12 +4,13 @@ import { AuthGuard } from '../auth.guard';
 import { RolesGuard } from '../roles/guard';
 import { Roles } from '../roles/decorator';
 import { Role } from '@prisma/client';
-import { ApiBearerAuth, ApiTags, ApiQuery } from '@nestjs/swagger'; // 👈 Ajoute ApiQuery
+import { ApiBearerAuth, ApiTags, ApiQuery } from '@nestjs/swagger';
 
 @ApiTags('admin/stats')
 @ApiBearerAuth()
 @UseGuards(AuthGuard, RolesGuard)
-@Roles(Role.ADMINISTRATEUR)
+// 👇 CORRECTION 1 : On autorise l'Admin ET le Super Admin au niveau du contrôleur
+@Roles(Role.ADMINISTRATEUR, Role.SUPER_ADMINISTRATEUR)
 @Controller('admin/stats')
 export class StatsController {
     constructor(private readonly statsService: StatsService) { }
@@ -29,8 +30,10 @@ export class StatsController {
             categoryId: categoryId ? +categoryId : undefined,
         });
     }
+
     @Get('export')
-    @Roles(Role.ADMINISTRATEUR)
+    // 👇 CORRECTION 2 : On fait pareil ici (ou on peut l'enlever car la règle du haut s'applique à tout)
+    @Roles(Role.ADMINISTRATEUR, Role.SUPER_ADMINISTRATEUR)
     async exportStats() {
         return this.statsService.getExportData();
     }

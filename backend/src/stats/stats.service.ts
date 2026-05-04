@@ -6,14 +6,20 @@ export class StatsService {
     constructor(private prisma: PrismaService) { }
 
     async getDashboardData(filters: { start?: Date; end?: Date; categoryId?: number }) {
-        // On ne construit l'objet de date QUE si start ou end existent
-        const dateFilter = (filters.start || filters.end) ? {
+        // CORRECTION DATES : On pousse la date de fin à 23:59:59 pour inclure toute la journée
+        let endOfDay = filters.end;
+        if (endOfDay) {
+            endOfDay = new Date(endOfDay);
+            endOfDay.setHours(23, 59, 59, 999);
+        }
+
+        const dateFilter = (filters.start || endOfDay) ? {
             ...(filters.start && { gte: filters.start }),
-            ...(filters.end && { lte: filters.end }),
+            ...(endOfDay && { lte: endOfDay }),
         } : undefined;
 
-        const [creations, exploitations, consultations, connexions] = await Promise.all([
-            // 1. Créations : Si categoryId est undefined, Prisma l'ignore
+        const [creations, exploitations, consultations, connexions, commentaires] = await Promise.all([
+            // 1. Créations
             this.prisma.ressource.count({
                 where: {
                     ...(dateFilter && { createdAt: dateFilter }),
@@ -37,38 +43,46 @@ export class StatsService {
                 },
             }),
 
-            // 4. Connexions (Indépendant des catégories de ressources)
+            // 4. Connexions (sans filtre de catégorie car c'est global à l'app)
             this.prisma.connectionLog.count({
                 where: {
                     ...(dateFilter && { createdAt: dateFilter }),
                 },
             }),
+
+            // 5. NOUVEAU : Commentaires
+            this.prisma.comment.count({
+                where: {
+                    ...(dateFilter && { createdAt: dateFilter }),
+                    ...(filters.categoryId && { ressource: { categoryId: filters.categoryId } }),
+                },
+            })
         ]);
 
-        return { creations, exploitations, consultations, connexions };
+        return { creations, exploitations, consultations, connexions, commentaires };
     }
 
     async getExportData() {
-        // On récupère toutes les ressources avec leurs relations et les comptes d'activité
         const data = await this.prisma.ressource.findMany({
             include: {
                 category: true,
                 _count: {
                     select: {
                         viewLogs: true,   // Consultations
-                        favoritedBy: true // Exploitations
+                        favoritedBy: true, // Exploitations
+                        comments: true     // 👈 NOUVEAU : Commentaires
                     }
                 }
             }
         });
 
-        // On "aplatit" les données pour qu'elles soient lisibles dans un tableur
         return data.map(r => ({
             Titre: r.title,
             Type: r.type,
             Categorie: r.category?.name || 'Sans catégorie',
             Consultations: r._count.viewLogs,
             Exploitations: r._count.favoritedBy,
+            Commentaires: r._count.comments, // 👈 Ajouté au CSV
             Date_Creation: r.createdAt.toLocaleDateString(),
             Status: r.isValidated ? 'Validée' : 'En attente'
         }));

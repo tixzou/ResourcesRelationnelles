@@ -27,7 +27,15 @@ export function Providers({ children, themeProps }: ProvidersProps) {
   return (
     <HeroUIProvider navigate={router.push}>
       <SessionProvider>
-        <NextThemesProvider {...themeProps}>{children}</NextThemesProvider>
+        {/* On force le mode light ici 👇 */}
+        <NextThemesProvider 
+          {...themeProps} 
+          attribute="class" 
+          defaultTheme="light" 
+          forcedTheme="light"
+        >
+          {children}
+        </NextThemesProvider>
       </SessionProvider>
     </HeroUIProvider>
   );
