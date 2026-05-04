@@ -122,7 +122,7 @@ export default function AdminUsersManager({ token, currentUserId, role }: { toke
     };
 
     return (
-        <div className="w-full flex flex-col gap-6">
+        <div className="w-full flex flex-col gap-6 px-1">
             <div className="flex flex-col md:flex-row gap-4 items-center w-full">
                 <Input
                     value={search}
@@ -132,7 +132,6 @@ export default function AdminUsersManager({ token, currentUserId, role }: { toke
                     startContent={<Search size={20} className="text-gray-400" />}
                     variant="bordered"
                 />
-                <Button variant="flat" className="h-10 px-6 bg-gray-100 shrink-0" onPress={() => setSearch("")}>Reset</Button>
             </div>
 
             <div className="flex flex-col gap-4 w-full">
@@ -143,32 +142,34 @@ export default function AdminUsersManager({ token, currentUserId, role }: { toke
                         const isCurrentUser = user.id === currentUserId;
 
                         return (
-                            <div key={user.id} className={`grid grid-cols-1 lg:grid-cols-12 gap-4 items-center p-5 bg-white border rounded-xl shadow-sm transition-all ${!user.isActive ? 'border-orange-200 bg-orange-50/30' : 'border-gray-200 hover:shadow-md'} ${isCurrentUser ? 'border-blue-200 bg-blue-50/30' : ''}`}>
+                            <div key={user.id} className={`flex flex-col lg:grid lg:grid-cols-12 gap-4 items-start lg:items-center p-4 md:p-5 bg-white border rounded-xl shadow-sm transition-all ${!user.isActive ? 'border-orange-200 bg-orange-50/30' : 'border-gray-200 hover:shadow-md'} ${isCurrentUser ? 'border-blue-200 bg-blue-50/30' : ''}`}>
 
-                                <div className="flex flex-col gap-1 lg:col-span-5">
-                                    <div className="flex items-center gap-2">
-                                        <h3 className={`font-bold text-base line-clamp-1 ${!user.isActive ? 'text-gray-500' : 'text-[#1B365D]'}`}>
+                                {/* Section Infos : Nom + Email + Stats */}
+                                <div className="flex flex-col gap-1 w-full lg:col-span-5">
+                                    <div className="flex items-center gap-2 flex-wrap">
+                                        <h3 className={`font-bold text-sm md:text-base line-clamp-1 ${!user.isActive ? 'text-gray-500' : 'text-[#1B365D]'}`}>
                                             {user.firstName} {user.lastName}
                                         </h3>
                                         <Chip size="sm" variant="flat" color={user.isActive ? "success" : "danger"} className="text-[10px] font-bold h-5 px-1 shrink-0">
                                             {user.isActive ? "ACTIF" : "SUSPENDU"}
                                         </Chip>
                                     </div>
-                                    <p className="text-sm text-gray-500">{user.email}</p>
-                                    <div className="flex items-center gap-3 mt-1 text-xs text-gray-400">
+                                    <p className="text-xs md:text-sm text-gray-500 truncate">{user.email}</p>
+                                    <div className="flex items-center gap-3 mt-1 text-[10px] md:text-xs text-gray-400">
                                         <div className="flex items-center gap-1"><FileText size={12} /> {user._count?.ressources || 0} res.</div>
                                         <div className="flex items-center gap-1"><MessageSquare size={12} /> {user._count?.comments || 0} com.</div>
                                     </div>
                                 </div>
 
-                                <div className="flex items-center gap-2 lg:col-span-3">
+                                {/* Section Role : Sélecteur ou Affichage simple */}
+                                <div className="flex items-center w-full lg:col-span-3 pt-2 lg:pt-0 border-t lg:border-none border-gray-100">
                                     {isSuperAdmin && !isCurrentUser ? (
                                         <Select
                                             aria-label="Changer le rôle"
                                             size="sm"
                                             variant="bordered"
                                             selectedKeys={[user.role]}
-                                            className="max-w-[160px]"
+                                            className="w-full lg:max-w-[160px]"
                                             onSelectionChange={(keys) => handleRoleChange(user.id, Array.from(keys)[0] as string)}
                                         >
                                             <SelectItem key="CITOYEN">Citoyen</SelectItem>
@@ -186,7 +187,8 @@ export default function AdminUsersManager({ token, currentUserId, role }: { toke
                                     )}
                                 </div>
 
-                                <div className="flex items-center gap-2 justify-start lg:justify-end lg:col-span-4">
+                                {/* Section Actions : Boutons */}
+                                <div className="flex items-center gap-2 justify-end w-full lg:col-span-4 pt-2 lg:pt-0 border-t lg:border-none border-gray-100">
                                     {isCurrentUser ? (
                                         <Chip size="sm" variant="flat" color="primary" startContent={<UserCircle size={14} />} className="font-bold">
                                             Votre compte
@@ -197,6 +199,7 @@ export default function AdminUsersManager({ token, currentUserId, role }: { toke
                                                 color={user.isActive ? "warning" : "success"}
                                                 size="sm"
                                                 variant="flat"
+                                                className="flex-1 lg:flex-none"
                                                 startContent={user.isActive ? <Ban size={16} /> : <CheckCircle size={16} />}
                                                 onPress={() => handleToggleActive(user.id, user.isActive)}
                                             >
@@ -220,8 +223,8 @@ export default function AdminUsersManager({ token, currentUserId, role }: { toke
                 )}
             </div>
 
-            <Modal isOpen={isOpen} onOpenChange={onOpenChange} backdrop="blur">
-                <ModalContent className="rounded-2xl">
+            <Modal isOpen={isOpen} onOpenChange={onOpenChange} backdrop="blur" size="md">
+                <ModalContent className="rounded-2xl mx-4">
                     {(onClose) => (
                         <>
                             <ModalHeader className="text-[#1B365D] font-bold flex gap-2 items-center">
@@ -229,16 +232,16 @@ export default function AdminUsersManager({ token, currentUserId, role }: { toke
                                 Suppression d'utilisateur
                             </ModalHeader>
                             <ModalBody className="text-gray-600">
-                                <p>Voulez-vous vraiment supprimer cet utilisateur définitivement ?</p>
-                                <p className="text-sm mt-2 text-danger bg-danger-50 p-3 rounded-lg border border-danger-100">
+                                <p className="text-sm md:text-base">Voulez-vous vraiment supprimer cet utilisateur définitivement ?</p>
+                                <p className="text-xs md:text-sm mt-2 text-danger bg-danger-50 p-3 rounded-lg border border-danger-100">
                                     <strong>Attention :</strong> Cette action est irréversible. Toutes ses données (ressources, commentaires, favoris) seront également supprimées.
                                 </p>
                             </ModalBody>
-                            <ModalFooter>
-                                <Button variant="light" onPress={() => { setUserToDelete(null); onClose(); }}>
+                            <ModalFooter className="flex-col sm:flex-row gap-2">
+                                <Button variant="light" className="w-full sm:w-auto" onPress={() => { setUserToDelete(null); onClose(); }}>
                                     Annuler
                                 </Button>
-                                <Button color="danger" className="font-bold" onPress={confirmDelete}>
+                                <Button color="danger" className="font-bold w-full sm:w-auto" onPress={confirmDelete}>
                                     Confirmer la suppression
                                 </Button>
                             </ModalFooter>

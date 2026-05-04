@@ -7,12 +7,12 @@ import { Input } from "@heroui/input";
 import { Select, SelectItem } from "@heroui/select";
 import { Spinner } from "@heroui/spinner";
 
-import { Download, Eye, PlusCircle, Heart, UserCheck, FilterX, MessageSquare } from "lucide-react";
+import { Download, Eye, PlusCircle, Heart, FilterX, MessageSquare } from "lucide-react";
 import { addToast } from "@heroui/toast";
 
 export default function AdminStatsManager({ token }: { token: string }) {
 
-    const [stats, setStats] = useState({ creations: 0, exploitations: 0, consultations: 0, connexions: 0, commentaires: 0 });
+    const [stats, setStats] = useState({ creations: 0, exploitations: 0, consultations: 0, commentaires: 0 });
     const [categories, setCategories] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
     const [exporting, setExporting] = useState(false);
@@ -105,10 +105,10 @@ export default function AdminStatsManager({ token }: { token: string }) {
     };
 
     return (
-        <div className="w-full flex flex-col gap-8">
+        <div className="w-full flex flex-col gap-6">
 
-            <div className="flex flex-col lg:flex-row gap-4 items-end lg:items-center bg-gray-50 p-5 rounded-2xl border border-gray-100">
-                <div className="flex flex-col sm:flex-row gap-4 w-full lg:flex-1">
+            <div className="flex flex-col xl:flex-row gap-4 items-start xl:items-center bg-gray-50 p-4 rounded-xl border border-gray-100">
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 w-full xl:flex-1">
                     <Input
                         type="date"
                         label="Date de début"
@@ -138,11 +138,11 @@ export default function AdminStatsManager({ token }: { token: string }) {
                     </Select>
                 </div>
 
-                <div className="flex gap-2 w-full sm:w-auto shrink-0">
+                <div className="flex flex-col sm:flex-row gap-2 w-full xl:w-auto shrink-0 mt-1 xl:mt-0">
                     <Button
                         variant="flat"
                         color="default"
-                        className="h-12"
+                        className="h-12 w-full sm:w-auto"
                         startContent={<FilterX size={18} />}
                         onPress={handleResetFilters}
                     >
@@ -150,7 +150,7 @@ export default function AdminStatsManager({ token }: { token: string }) {
                     </Button>
                     <Button
                         color="primary"
-                        className="bg-[#1B365D] h-12 font-bold"
+                        className="bg-[#1B365D] h-12 font-bold w-full sm:w-auto"
                         startContent={exporting ? <Spinner size="sm" color="white" /> : <Download size={18} />}
                         onPress={handleExport}
                         isDisabled={exporting}
@@ -163,64 +163,52 @@ export default function AdminStatsManager({ token }: { token: string }) {
             {loading ? (
                 <div className="flex justify-center p-12"><Spinner size="lg" color="primary" /></div>
             ) : (
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-6">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
 
                     <Card className="border-none shadow-sm bg-blue-50/50">
-                        <CardBody className="p-6 flex flex-row items-center gap-4">
-                            <div className="p-4 bg-blue-100 text-blue-600 rounded-xl shrink-0">
-                                <Eye size={28} />
+                        <CardBody className="p-4 flex flex-row items-center gap-3 overflow-hidden">
+                            <div className="p-3 bg-blue-100 text-blue-600 rounded-xl shrink-0">
+                                <Eye size={22} />
                             </div>
-                            <div>
-                                <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider">Vues</p>
-                                <p className="text-2xl font-bold text-[#1B365D]">{stats.consultations}</p>
+                            <div className="min-w-0 flex-1">
+                                <p className="text-[10px] sm:text-xs font-semibold text-gray-500 uppercase tracking-wider truncate">Vues</p>
+                                <p className="text-xl sm:text-2xl font-bold text-[#1B365D] truncate">{stats.consultations}</p>
                             </div>
                         </CardBody>
                     </Card>
 
                     <Card className="border-none shadow-sm bg-emerald-50/50">
-                        <CardBody className="p-6 flex flex-row items-center gap-4">
-                            <div className="p-4 bg-emerald-100 text-emerald-600 rounded-xl shrink-0">
-                                <PlusCircle size={28} />
+                        <CardBody className="p-4 flex flex-row items-center gap-3 overflow-hidden">
+                            <div className="p-3 bg-emerald-100 text-emerald-600 rounded-xl shrink-0">
+                                <PlusCircle size={22} />
                             </div>
-                            <div>
-                                <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider">Créations</p>
-                                <p className="text-2xl font-bold text-[#1B365D]">{stats.creations}</p>
+                            <div className="min-w-0 flex-1">
+                                <p className="text-[10px] sm:text-xs font-semibold text-gray-500 uppercase tracking-wider truncate">Créations</p>
+                                <p className="text-xl sm:text-2xl font-bold text-[#1B365D] truncate">{stats.creations}</p>
                             </div>
                         </CardBody>
                     </Card>
 
                     <Card className="border-none shadow-sm bg-rose-50/50">
-                        <CardBody className="p-6 flex flex-row items-center gap-4">
-                            <div className="p-4 bg-rose-100 text-rose-600 rounded-xl shrink-0">
-                                <Heart size={28} />
+                        <CardBody className="p-4 flex flex-row items-center gap-3 overflow-hidden">
+                            <div className="p-3 bg-rose-100 text-rose-600 rounded-xl shrink-0">
+                                <Heart size={22} />
                             </div>
-                            <div>
-                                <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider">Favoris</p>
-                                <p className="text-2xl font-bold text-[#1B365D]">{stats.exploitations}</p>
+                            <div className="min-w-0 flex-1">
+                                <p className="text-[10px] sm:text-xs font-semibold text-gray-500 uppercase tracking-wider truncate">Favoris</p>
+                                <p className="text-xl sm:text-2xl font-bold text-[#1B365D] truncate">{stats.exploitations}</p>
                             </div>
                         </CardBody>
                     </Card>
 
                     <Card className="border-none shadow-sm bg-amber-50/50">
-                        <CardBody className="p-6 flex flex-row items-center gap-4">
-                            <div className="p-4 bg-amber-100 text-amber-600 rounded-xl shrink-0">
-                                <MessageSquare size={28} />
+                        <CardBody className="p-4 flex flex-row items-center gap-3 overflow-hidden">
+                            <div className="p-3 bg-amber-100 text-amber-600 rounded-xl shrink-0">
+                                <MessageSquare size={22} />
                             </div>
-                            <div>
-                                <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider">Commentaires</p>
-                                <p className="text-2xl font-bold text-[#1B365D]">{stats.commentaires}</p>
-                            </div>
-                        </CardBody>
-                    </Card>
-
-                    <Card className="border-none shadow-sm bg-purple-50/50">
-                        <CardBody className="p-6 flex flex-row items-center gap-4">
-                            <div className="p-4 bg-purple-100 text-purple-600 rounded-xl shrink-0">
-                                <UserCheck size={28} />
-                            </div>
-                            <div>
-                                <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider">Connexions</p>
-                                <p className="text-2xl font-bold text-[#1B365D]">{stats.connexions}</p>
+                            <div className="min-w-0 flex-1">
+                                <p className="text-[10px] sm:text-xs font-semibold text-gray-500 uppercase tracking-wider truncate">Commentaires</p>
+                                <p className="text-xl sm:text-2xl font-bold text-[#1B365D] truncate">{stats.commentaires}</p>
                             </div>
                         </CardBody>
                     </Card>
@@ -235,6 +223,6 @@ export default function AdminStatsManager({ token }: { token: string }) {
  * Documentation du fichier
  *
  * - Role : Gestionnaire du tableau de bord statistiques. Il charge les categories, applique des filtres et appelle /admin/stats.
- * - Fonctionnement : Il affiche les compteurs principaux : creations, exploitations, consultations, connexions et commentaires.
- * - A retenir : Il propose un export des donnees via /admin/stats/export.
+ * - Fonctionnement : Il affiche les compteurs principaux dans une grille 100% responsive adaptee a 4 cartes. 
+ * - A retenir : Il propose un export des donnees au format CSV. La statistique de connexions a ete retiree.
  */

@@ -160,7 +160,7 @@ export default function AuthModal() {
       if (res?.error) {
         addToast({
           title: "Erreur",
-          description: res.error,
+          description: "Identifiant ou mot de passe incorrect.",
           color: "danger",
           timeout: 5000
         });
@@ -462,5 +462,5 @@ export default function AuthModal() {
  *
  * - Role : Modal d'authentification client. Il gere les modes connexion, inscription et mot de passe oublie avec etats React.
  * - Fonctionnement : Il appelle /auth/register pour creer un compte puis utilise signIn credentials pour connecter l'utilisateur.
- * - A retenir : Il gere les champs, les erreurs, la visibilite des mots de passe et la bascule entre formulaires.
+ * - A retenir : Il gere les champs, les erreurs, la visibilite des mots de passe et la bascule entre formulaires. L'erreur par defaut de NextAuth (CredentialsSignin) est remplacee par un message en francais pour l'utilisateur.
  */

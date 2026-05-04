@@ -1,6 +1,7 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
 import { PrismaService } from '../prisma.service';
 import { Role } from '@prisma/client';
+import * as bcrypt from 'bcryptjs';
 
 @Injectable()
 export class UserService {
@@ -44,12 +45,52 @@ export class UserService {
       data: { isActive: !user.isActive },
     });
   }
+
+  async getProfile(userId: number) {
+    const user = await this.prisma.user.findUnique({
+      where: { id: userId },
+      select: { id: true, firstName: true, lastName: true, email: true, role: true }
+    });
+    if (!user) throw new NotFoundException("Utilisateur introuvable");
+    
+    return user;
+  }
+
+  async updateProfile(userId: number, data: { firstName: string; lastName: string; email: string }) {
+    const existing = await this.prisma.user.findUnique({ where: { email: data.email } });
+    if (existing && existing.id !== userId) {
+      throw new BadRequestException("Cet email est déjà utilisé.");
+    }
+
+    return this.prisma.user.update({
+      where: { id: userId },
+      data: { firstName: data.firstName, lastName: data.lastName, email: data.email },
+      select: { id: true, firstName: true, lastName: true, email: true }
+    });
+  }
+
+  async updatePassword(userId: number, oldPass: string, newPass: string) {
+    const user = await this.prisma.user.findUnique({ where: { id: userId } });
+    if (!user) throw new NotFoundException("Utilisateur introuvable");
+
+    const isMatch = await bcrypt.compare(oldPass, user.password);
+    if (!isMatch) throw new BadRequestException("Mot de passe actuel incorrect");
+
+    const hashedNewPassword = await bcrypt.hash(newPass, 10);
+
+    await this.prisma.user.update({
+      where: { id: userId },
+      data: { password: hashedNewPassword }
+    });
+
+    return { message: "Mot de passe mis à jour avec succès" };
+  }
 }
 
 /**
  * Documentation du fichier
  *
- * - Role : Service metier des utilisateurs. Il liste les comptes avec compteurs de ressources/commentaires pour l'administration.
- * - Fonctionnement : Il permet de changer le role, supprimer un utilisateur et inverser son etat actif/suspendu.
- * - A retenir : Les erreurs Prisma sont converties en exceptions Nest quand l'utilisateur n'existe pas ou ne peut pas etre supprime.
+ * - Role : Service metier des utilisateurs. Il gere l'administration des comptes (liste, roles, statut) et la gestion du profil utilisateur.
+ * - Fonctionnement : Il permet de changer le role, supprimer un utilisateur, inverser son etat actif/suspendu, ainsi que de consulter et mettre a jour les informations personnelles et le mot de passe du profil courant.
+ * - A retenir : Les erreurs Prisma sont converties en exceptions Nest. La modification du profil verifie l'unicite de l'email et la mise a jour du mot de passe valide l'ancien hash avec bcrypt.
  */

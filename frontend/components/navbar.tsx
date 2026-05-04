@@ -15,13 +15,18 @@ import AuthModal from "./authentification/authModal";
 import { useState } from "react";
 import { Button } from "@heroui/button";
 import { useSession, signOut } from "next-auth/react";
+import { Shield } from "lucide-react";
+import { useRouter } from "next/navigation";
 
 export default function NavbarComponent() {
   const [isMenuOpen, setIsMenuOpen] = useState<boolean>(false);
   const { data: session } = useSession();
 
-  const handleLogout = () => {
-    signOut();
+ const router = useRouter();
+
+  const handleLogout = async () => {
+    await signOut({ redirect: false });
+    router.push("/");
   };
 
   const userRole = (session?.user as any)?.role;
@@ -62,32 +67,38 @@ export default function NavbarComponent() {
         </Link>
       </NavbarBrand>
 
+      {/* --- AFFICHAGE ORDINATEUR (DESKTOP) --- */}
       <NavbarContent justify="end" className="gap-4">
         <NavbarItem className="hidden sm:flex">
-          <Link color="foreground" href="/" className="hover:text-[#003E7E]">Accueil</Link>
+          <Link color="foreground" href="/" className="hover:text-[#003E7E] text-sm font-medium">Accueil</Link>
         </NavbarItem>
 
         <NavbarItem className="hidden sm:flex">
-          <Link color="foreground" href="/ressources" className="hover:text-[#003E7E]">Ressources</Link>
+          <Link color="foreground" href="/ressources" className="hover:text-[#003E7E] text-sm font-medium">Ressources</Link>
         </NavbarItem>
 
+        {/* Bouton Admin version compacte pour le Desktop */}
         {isAdminOrMod && (
           <NavbarItem className="hidden sm:flex">
-            <Link href="/administrateur" className="text-[#003E7E] font-bold hover:opacity-80">
-              Administration
+            <Link
+              href="/administrateur"
+              className="flex items-center gap-2 bg-blue-50/80 hover:bg-blue-100 text-[#1B365D] px-3 py-1.5 rounded-lg font-bold transition-all border border-blue-100 text-sm"
+            >
+              <Shield size={16} className="text-blue-600" />
+              Espace Admin
             </Link>
           </NavbarItem>
         )}
 
-        <span className="text-gray-500 hidden sm:flex">|</span>
+        <span className="text-gray-300 hidden sm:flex">|</span>
 
         <NavbarItem className="hidden sm:flex">
           {session?.user?.name ? (
             <div className="flex items-center gap-4">
-              <span className="text-sm font-medium text-[#003E7E]">
-                Bonjour, <strong>{session?.user?.name}</strong>
-              </span>
-              <Button size="sm" variant="flat" color="danger" onPress={handleLogout} className="text-tiny">
+              <Link href="/profile" className="text-sm font-bold text-[#1B365D] hover:text-blue-600 transition-colors">
+                Mon compte
+              </Link>
+              <Button size="sm" variant="flat" color="danger" onPress={handleLogout} className="text-tiny font-bold">
                 Déconnexion
               </Button>
             </div>
@@ -97,8 +108,9 @@ export default function NavbarComponent() {
         </NavbarItem>
       </NavbarContent>
 
-      <NavbarMenu className="pt-6">
-        <NavbarMenuItem>
+      {/* --- AFFICHAGE MOBILE (MENU BURGER) --- */}
+      <NavbarMenu className="pt-6 gap-4">
+        <NavbarMenuItem className="flex flex-col gap-2">
           <Link color="foreground" className="w-full text-lg py-2" href="/" onPress={() => setIsMenuOpen(false)}>
             Accueil
           </Link>
@@ -106,19 +118,34 @@ export default function NavbarComponent() {
             Ressources
           </Link>
 
+          {/* Bouton Admin version large pour le Mobile */}
           {isAdminOrMod && (
-            <Link className="w-full text-lg py-2 text-[#003E7E] font-bold" href="/administrateur" onPress={() => setIsMenuOpen(false)}>
-              Administration
+            <Link
+              href="/administrateur"
+              onPress={() => setIsMenuOpen(false)}
+              className="flex items-center gap-3 w-full text-lg py-3 px-4 mt-2 bg-blue-50/80 hover:bg-blue-100 text-[#1B365D] rounded-xl font-bold transition-all border border-blue-100"
+            >
+              <Shield size={20} className="text-blue-600" />
+              Espace Admin
             </Link>
           )}
         </NavbarMenuItem>
 
         <NavbarMenuItem>
-          <div className="pt-4 border-t border-gray-100">
+          <div className="pt-6 mt-2 border-t border-gray-100">
             {session?.user?.name ? (
-              <Button className="w-full" color="danger" variant="flat" onPress={handleLogout}>Déconnexion</Button>
+              <div className="flex flex-col gap-4">
+                <span className="text-base text-gray-600 text-center">
+                  Connecté en tant que <strong>{session?.user?.name}</strong>
+                </span>
+                <Button className="w-full font-bold" color="danger" variant="flat" size="lg" onPress={handleLogout}>
+                  Déconnexion
+                </Button>
+              </div>
             ) : (
-              <AuthModal />
+              <div className="flex justify-center w-full">
+                <AuthModal />
+              </div>
             )}
           </div>
         </NavbarMenuItem>

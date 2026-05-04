@@ -1,7 +1,7 @@
-
 import "@/styles/globals.css";
 import { Metadata, Viewport } from "next";
 import clsx from "clsx";
+import { ToastProvider } from "@heroui/toast";
 
 import { Providers } from "./providers";
 
@@ -34,7 +34,6 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-
     <html suppressHydrationWarning lang="fr" className="light text-foreground bg-background">
       <head />
       <body
@@ -43,8 +42,8 @@ export default function RootLayout({
           fontSans.variable,
         )}
       >
-
         <Providers themeProps={{ attribute: "class", defaultTheme: "light", forcedTheme: "light" }}>
+          <ToastProvider />
           <div className="relative flex flex-col h-screen">
             <NavbarComponent />
             <main className="flex-grow">
@@ -64,6 +63,6 @@ export default function RootLayout({
  * Documentation du fichier
  *
  * - Role : Layout racine Next.js. Il charge les styles globaux, les polices, les metadata et le viewport.
- * - Fonctionnement : Il entoure toutes les pages avec les providers, la navbar, le contenu principal et le footer.
- * - A retenir : C'est le point commun de l'interface : toute modification ici impacte l'ensemble du frontend.
+ * - Fonctionnement : Il entoure toutes les pages avec les providers, la navbar, le ToastProvider pour les notifications globales, le contenu principal et le footer.
+ * - A retenir : C'est le point commun de l'interface : toute modification ici impacte l'ensemble du frontend. L'ajout du ToastProvider est indispensable pour afficher les alertes (succes, erreurs) generees par addToast.
  */

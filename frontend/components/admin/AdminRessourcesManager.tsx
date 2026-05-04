@@ -196,30 +196,30 @@ export default function AdminRessourcesManager({ token, role }: { token: string,
         const isRoot = level === 0;
 
         return (
-            <div key={comment.id} className={isRoot ? "bg-gray-50 p-4 rounded-xl border border-gray-100" : "ml-6 mt-3 p-3 bg-white border border-gray-100 rounded-lg"}>
-                <div className="flex justify-between items-start mb-2">
-                    <div>
-                        <span className={`font-bold ${isRoot ? 'text-sm' : 'text-xs'} text-[#1B365D]`}>
+            <div key={comment.id} className={isRoot ? "bg-gray-50 p-3 md:p-4 rounded-xl border border-gray-100" : "ml-4 md:ml-8 mt-3 p-3 bg-white border border-gray-100 rounded-lg"}>
+                <div className="flex justify-between items-start mb-2 gap-2">
+                    <div className="min-w-0">
+                        <p className={`font-bold ${isRoot ? 'text-sm' : 'text-xs'} text-[#1B365D] truncate`}>
                             {comment.author?.firstName} {comment.author?.lastName}
-                        </span>
-                        <span className="text-xs text-gray-400 ml-2">
+                        </p>
+                        <p className="text-[10px] text-gray-400">
                             {new Date(comment.createdAt).toLocaleDateString('fr-FR')}
-                        </span>
+                        </p>
                     </div>
-                    <div className="flex gap-1 items-center">
-                        <Button size="sm" variant="light" color="primary" className="h-6 min-w-0 px-2 text-[11px]" onPress={() => setReplyingToId(replyingToId === comment.id ? null : comment.id)}>
+                    <div className="flex gap-1 items-center shrink-0">
+                        <Button size="sm" variant="light" color="primary" className="h-7 min-w-0 px-2 text-[11px]" onPress={() => setReplyingToId(replyingToId === comment.id ? null : comment.id)}>
                             Répondre
                         </Button>
-                        <Button size="sm" isIconOnly variant="light" color="danger" className="h-6 w-6 min-w-0" onPress={() => openDeleteModal("comment", comment.id)} title="Supprimer">
+                        <Button size="sm" isIconOnly variant="light" color="danger" className="h-7 w-7 min-w-0" onPress={() => openDeleteModal("comment", comment.id)} title="Supprimer">
                             <Trash2 size={14}/>
                         </Button>
                     </div>
                 </div>
 
-                <p className={`${isRoot ? 'text-sm text-gray-700' : 'text-sm text-gray-600'}`}>{comment.content}</p>
+                <p className={`${isRoot ? 'text-sm text-gray-700' : 'text-xs text-gray-600'} break-words`}>{comment.content}</p>
 
                 {replyingToId === comment.id && (
-                    <div className="mt-3 flex gap-2">
+                    <div className="mt-3 flex flex-col sm:flex-row gap-2">
                         <Input
                             size="sm"
                             variant="bordered"
@@ -227,8 +227,9 @@ export default function AdminRessourcesManager({ token, role }: { token: string,
                             value={replyText}
                             onValueChange={setReplyText}
                             autoFocus
+                            className="flex-1"
                         />
-                        <Button size="sm" color="primary" className="bg-[#1B365D]" onPress={() => handlePostReply(comment.id)}>
+                        <Button size="sm" color="primary" className="bg-[#1B365D] w-full sm:w-auto" onPress={() => handlePostReply(comment.id)}>
                             Envoyer
                         </Button>
                     </div>
@@ -273,26 +274,25 @@ export default function AdminRessourcesManager({ token, role }: { token: string,
     if (loading) return <div className="flex justify-center p-10 w-full"><Spinner size="lg" color="primary" /></div>;
 
     const renderResListItem = (r: any, isPending: boolean) => (
-        <div key={r.id} className="flex flex-col md:flex-row items-start md:items-center justify-between p-5 bg-white border border-gray-200 rounded-xl shadow-sm hover:shadow-md transition-all gap-4">
-            <div className="flex flex-col gap-1 w-full md:w-2/3">
-                <div className="flex items-center gap-2">
-                    <h3 className="font-bold text-base text-[#1B365D] line-clamp-1">{r.title}</h3>
+        <div key={r.id} className="flex flex-col lg:flex-row items-start lg:items-center justify-between p-4 md:p-5 bg-white border border-gray-200 rounded-xl shadow-sm hover:shadow-md transition-all gap-4">
+            <div className="flex flex-col gap-1 w-full lg:w-2/3">
+                <div className="flex items-center gap-2 flex-wrap">
+                    <h3 className="font-bold text-sm md:text-base text-[#1B365D] line-clamp-1">{r.title}</h3>
                     <Chip size="sm" variant="flat" color={isPending ? "warning" : "success"} className="text-[10px] font-bold h-5 px-1 shrink-0">
                         {isPending ? "EN ATTENTE" : "PUBLIÉE"}
                     </Chip>
                 </div>
-                <div className="flex flex-wrap items-center gap-2 mt-1">
-                    <span className="text-sm text-gray-500">Par <span className="font-semibold text-gray-700">{r.author.firstName} {r.author.lastName}</span></span>
-                    <span className="text-gray-300">•</span>
-                    <span className="text-xs text-gray-400">{new Date(r.createdAt).toLocaleDateString('fr-FR')}</span>
-                    <span className="text-gray-300">•</span>
+                <div className="flex flex-wrap items-center gap-x-2 gap-y-1 mt-1">
+                    <span className="text-xs md:text-sm text-gray-500">Par <span className="font-semibold text-gray-700">{r.author.firstName} {r.author.lastName}</span></span>
+                    <span className="hidden xs:inline text-gray-300">•</span>
+                    <span className="text-[10px] md:text-xs text-gray-400">{new Date(r.createdAt).toLocaleDateString('fr-FR')}</span>
+                    <span className="hidden xs:inline text-gray-300">•</span>
                     <Chip size="sm" variant="flat" className="bg-gray-100 border border-gray-200 text-gray-600 text-[10px] h-5">{r.type}</Chip>
                     {r.category && <Chip size="sm" variant="dot" color="secondary" className="border-none text-gray-500 text-[10px] h-5">{r.category.name}</Chip>}
                 </div>
             </div>
 
-            <div className="flex items-center gap-2 w-full md:w-auto justify-end shrink-0">
-
+            <div className="flex items-center gap-2 w-full lg:w-auto justify-end lg:justify-start shrink-0 pt-2 lg:pt-0 border-t lg:border-none border-gray-100">
                 <Button isIconOnly variant="flat" color="primary" size="sm" onPress={() => handleOpenComments(r.id)} title="Commentaires">
                     <MessageSquare size={16} />
                 </Button>
@@ -306,52 +306,75 @@ export default function AdminRessourcesManager({ token, role }: { token: string,
                 )}
 
                 {isPending ? (
-                    <>
+                    <div className="flex gap-2">
                         <Button isIconOnly color="danger" variant="flat" size="sm" onPress={() => openDeleteModal("ressource", r.id)} title="Rejeter"><XCircle size={16} /></Button>
-                        <Button color="success" size="sm" className="text-white font-medium" startContent={<CheckCircle size={16} />} onPress={() => handleAction(r.id, "validate")}>Approuver</Button>
-                    </>
+                        <Button color="success" size="sm" className="text-white font-medium" startContent={<CheckCircle size={16} />} onPress={() => handleAction(r.id, "validate")}>
+                            <span className="hidden sm:inline">Approuver</span>
+                        </Button>
+                    </div>
                 ) : (
-                    <>
+                    <div className="flex gap-2">
                         {isAdmin && (
                             <Button color="warning" size="sm" variant="flat" startContent={<Ban size={16} />} onPress={() => handleAction(r.id, "suspend")}>
-                                Suspendre
+                                <span className="hidden sm:inline">Suspendre</span>
                             </Button>
                         )}
-
                         {isAdmin && (
                             <Button isIconOnly color="danger" size="sm" variant="light" onPress={() => openDeleteModal("ressource", r.id)}><Trash2 size={16} /></Button>
                         )}
-                    </>
+                    </div>
                 )}
             </div>
         </div>
     );
 
     return (
-        <div className="w-full flex flex-col gap-6">
+        <div className="w-full flex flex-col gap-6 px-1">
 
             {selectedTab !== "categories" && (
-                <div className="flex flex-col md:flex-row gap-4 items-center w-full">
-                    <Input value={search} onValueChange={setSearch} className="w-full md:flex-1" placeholder="Rechercher..." startContent={<Search size={20} className="text-gray-400" />} variant="bordered" />
-                    <div className="flex w-full md:w-auto gap-3">
-                        <select value={categoryFilter} onChange={(e) => setCategoryFilter(e.target.value)} className="flex-1 md:w-48 bg-white border border-gray-200 rounded-xl px-4 h-10 text-sm outline-none cursor-pointer">
+                <div className="flex flex-col lg:flex-row gap-3 items-center w-full">
+                    <Input 
+                        value={search} 
+                        onValueChange={setSearch} 
+                        className="w-full lg:flex-1" 
+                        placeholder="Rechercher..." 
+                        startContent={<Search size={20} className="text-gray-400" />} 
+                        variant="bordered" 
+                    />
+                    <div className="flex flex-wrap sm:flex-nowrap w-full lg:w-auto gap-2">
+                        <select 
+                            value={categoryFilter} 
+                            onChange={(e) => setCategoryFilter(e.target.value)} 
+                            className="flex-1 sm:w-48 bg-white border border-gray-200 rounded-xl px-4 h-10 text-sm outline-none cursor-pointer min-w-[140px]"
+                        >
                             <option value="">Toutes catégories</option>
                             {categories.map((cat) => (<option key={cat.id} value={cat.name}>{cat.name}</option>))}
                         </select>
-                        <Button variant="flat" className="h-10 bg-gray-100" onPress={() => { setSearch(""); setCategoryFilter(""); }}>Reset</Button>
-
-                        {isAdmin && (
-                            <Button color="primary" className="h-10 bg-[#1B365D]" startContent={<Plus size={18} />} onPress={() => {
-                                setEditingId(null); setFormTitle(""); setFormContent(""); setFormType(new Set(["ARTICLE"])); setFormCategoryId(new Set([]));
-                                onResOpen();
-                            }}>Créer</Button>
-                        )}
+                        <div className="flex gap-2 w-full sm:w-auto">
+                            <Button variant="flat" className="h-10 bg-gray-100 flex-1 sm:flex-none" onPress={() => { setSearch(""); setCategoryFilter(""); }}>Réinitialiser</Button>
+                            {isAdmin && (
+                                <Button color="primary" className="h-10 bg-[#1B365D] flex-1 sm:flex-none" startContent={<Plus size={18} />} onPress={() => {
+                                    setEditingId(null); setFormTitle(""); setFormContent(""); setFormType(new Set(["ARTICLE"])); setFormCategoryId(new Set([]));
+                                    onResOpen();
+                                }}>Créer</Button>
+                            )}
+                        </div>
                     </div>
                 </div>
             )}
 
-            <Tabs selectedKey={selectedTab} onSelectionChange={(k) => setSelectedTab(k as string)} variant="underlined" color="primary" classNames={{ tabList: "gap-6 w-full border-b border-gray-200 p-0", cursor: "bg-[#1B365D]", tabContent: "group-data-[selected=true]:text-[#1B365D] font-bold" }}>
-                <Tab key="pending" title={<div className="flex items-center gap-2">À vérifier <Chip size="sm" color="warning" className="text-white border-none">{pendingRessources.length}</Chip></div>}>
+            <Tabs 
+                selectedKey={selectedTab} 
+                onSelectionChange={(k) => setSelectedTab(k as string)} 
+                variant="underlined" 
+                color="primary" 
+                classNames={{ 
+                    tabList: "gap-4 md:gap-6 w-full border-b border-gray-200 p-0 overflow-x-auto", 
+                    cursor: "bg-[#1B365D]", 
+                    tabContent: "group-data-[selected=true]:text-[#1B365D] font-bold text-xs md:text-sm" 
+                }}
+            >
+                <Tab key="pending" title={<div className="flex items-center gap-2">À vérifier <Chip size="sm" color="warning" className="text-white border-none h-4 px-1 text-[10px]">{pendingRessources.length}</Chip></div>}>
                     <div className="pt-4 flex flex-col gap-4">
                         {pendingRessources.length === 0 ? <p className="text-gray-500 italic p-8 text-center border border-dashed rounded-xl bg-gray-50">Aucune ressource en attente.</p> : pendingRessources.map(r => renderResListItem(r, true))}
                     </div>
@@ -363,37 +386,39 @@ export default function AdminRessourcesManager({ token, role }: { token: string,
                 </Tab>
 
                 {isAdmin && (
-                    <Tab key="categories" title={<div className="flex items-center gap-2"><FolderTree size={16}/> Catégories</div>}>
+                    <Tab key="categories" title={<div className="flex items-center gap-2"><FolderTree size={16}/> <span className="hidden md:inline">Catégories</span></div>}>
                         <div className="pt-4 flex flex-col gap-4">
                             <div className="flex justify-end mb-2">
-                                <Button color="primary" className="bg-[#1B365D]" startContent={<Plus size={18} />} onPress={() => {
+                                <Button color="primary" className="bg-[#1B365D] w-full sm:w-auto" startContent={<Plus size={18} />} onPress={() => {
                                     setEditingCatId(null); setFormCatName(""); onCatOpen();
                                 }}>Nouvelle catégorie</Button>
                             </div>
-                            {categories.map(cat => (
-                                <div key={cat.id} className="flex items-center justify-between p-4 bg-white border border-gray-200 rounded-xl shadow-sm">
-                                    <span className="font-bold text-[#1B365D]">{cat.name}</span>
-                                    <div className="flex gap-2">
-                                        <Button isIconOnly variant="flat" size="sm" onPress={() => {
-                                            setEditingCatId(cat.id); setFormCatName(cat.name); onCatOpen();
-                                        }}><Edit size={16} /></Button>
-                                        <Button isIconOnly color="danger" variant="light" size="sm" onPress={() => openDeleteModal("category", cat.id)}><Trash2 size={16} /></Button>
+                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+                                {categories.map(cat => (
+                                    <div key={cat.id} className="flex items-center justify-between p-4 bg-white border border-gray-200 rounded-xl shadow-sm">
+                                        <span className="font-bold text-[#1B365D] truncate mr-2">{cat.name}</span>
+                                        <div className="flex gap-1 shrink-0">
+                                            <Button isIconOnly variant="flat" size="sm" onPress={() => {
+                                                setEditingCatId(cat.id); setFormCatName(cat.name); onCatOpen();
+                                            }}><Edit size={16} /></Button>
+                                            <Button isIconOnly color="danger" variant="light" size="sm" onPress={() => openDeleteModal("category", cat.id)}><Trash2 size={16} /></Button>
+                                        </div>
                                     </div>
-                                </div>
-                            ))}
+                                ))}
+                            </div>
                         </div>
                     </Tab>
                 )}
             </Tabs>
 
-            <Modal isOpen={isResOpen} onOpenChange={onResOpenChange} size="lg" backdrop="blur">
+            <Modal isOpen={isResOpen} onOpenChange={onResOpenChange} size="lg" backdrop="blur" scrollBehavior="inside">
                 <ModalContent>
                     {(onClose) => (
                         <>
-                            <ModalHeader className="text-xl font-bold text-[#1B365D]">{editingId ? "Modifier" : "Créer"} une ressource</ModalHeader>
+                            <ModalHeader className="text-lg md:text-xl font-bold text-[#1B365D]">{editingId ? "Modifier" : "Créer"} une ressource</ModalHeader>
                             <ModalBody className="gap-4">
                                 <Input label="Titre" variant="bordered" value={formTitle} onValueChange={setFormTitle} />
-                                <div className="flex gap-4">
+                                <div className="flex flex-col sm:flex-row gap-4">
                                     <Select label="Catégorie" variant="bordered" selectedKeys={formCategoryId} onSelectionChange={(k) => setFormCategoryId(k as any)}>
                                         {categories.map(c => <SelectItem key={c.id.toString()}>{c.name}</SelectItem>)}
                                     </Select>
@@ -403,9 +428,9 @@ export default function AdminRessourcesManager({ token, role }: { token: string,
                                 </div>
                                 <Textarea label="Contenu" variant="bordered" minRows={4} value={formContent} onValueChange={setFormContent} />
                             </ModalBody>
-                            <ModalFooter>
-                                <Button variant="light" onPress={onClose}>Annuler</Button>
-                                <Button color="primary" onPress={handleSaveRes}>Enregistrer</Button>
+                            <ModalFooter className="flex-col sm:flex-row gap-2">
+                                <Button variant="light" className="w-full sm:w-auto" onPress={onClose}>Annuler</Button>
+                                <Button color="primary" className="w-full sm:w-auto" onPress={handleSaveRes}>Enregistrer</Button>
                             </ModalFooter>
                         </>
                     )}
@@ -434,20 +459,20 @@ export default function AdminRessourcesManager({ token, role }: { token: string,
                     {(onClose) => (
                         <>
                             <ModalHeader className="text-xl font-bold text-[#1B365D]">Commentaires</ModalHeader>
-                            <ModalBody className="gap-4">
-                                {loadingComments ? <Spinner /> : comments.length === 0 ? <p className="italic text-center">Aucun commentaire.</p> : (
+                            <ModalBody className="gap-4 px-2 md:px-6">
+                                {loadingComments ? <div className="flex justify-center p-4"><Spinner /></div> : comments.length === 0 ? <p className="italic text-center py-4">Aucun commentaire.</p> : (
                                     <div className="flex flex-col gap-4">
                                         {comments.filter(c => !c.parentId).map(root => renderCommentNode(root, 0))}
                                     </div>
                                 )}
                             </ModalBody>
-                            <ModalFooter><Button variant="light" onPress={onClose}>Fermer</Button></ModalFooter>
+                            <ModalFooter><Button variant="light" className="w-full md:w-auto" onPress={onClose}>Fermer</Button></ModalFooter>
                         </>
                     )}
                 </ModalContent>
             </Modal>
 
-            <Modal isOpen={isConfirmOpen} onOpenChange={onConfirmOpenChange} backdrop="blur">
+            <Modal isOpen={isConfirmOpen} onOpenChange={onConfirmOpenChange} backdrop="blur" size="md">
                 <ModalContent className="rounded-2xl">
                     {(onClose) => {
                         const isCat = deleteTarget?.type === "category";
@@ -471,19 +496,19 @@ export default function AdminRessourcesManager({ token, role }: { token: string,
                             <>
                                 <ModalHeader className="text-[#1B365D] font-bold flex gap-2 items-center">
                                     <Trash2 size={20} className="text-danger" />
-                                    {title}
+                                    <span className="text-base md:text-lg">{title}</span>
                                 </ModalHeader>
                                 <ModalBody className="text-gray-600">
-                                    <p>{text}</p>
-                                    <p className="text-sm mt-2 text-danger bg-danger-50 p-3 rounded-lg border border-danger-100">
+                                    <p className="text-sm md:text-base">{text}</p>
+                                    <p className="text-xs md:text-sm mt-2 text-danger bg-danger-50 p-3 rounded-lg border border-danger-100">
                                         <strong>Information :</strong> {warning}
                                     </p>
                                 </ModalBody>
-                                <ModalFooter>
-                                    <Button variant="light" onPress={() => { setDeleteTarget(null); onClose(); }}>
+                                <ModalFooter className="flex-col sm:flex-row gap-2">
+                                    <Button variant="light" className="w-full sm:w-auto" onPress={() => { setDeleteTarget(null); onClose(); }}>
                                         Annuler
                                     </Button>
-                                    <Button color="danger" className="font-bold" onPress={confirmDelete}>
+                                    <Button color="danger" className="font-bold w-full sm:w-auto" onPress={confirmDelete}>
                                         Confirmer la suppression
                                     </Button>
                                 </ModalFooter>
@@ -492,7 +517,6 @@ export default function AdminRessourcesManager({ token, role }: { token: string,
                     }}
                 </ModalContent>
             </Modal>
-
         </div>
     );
 }
