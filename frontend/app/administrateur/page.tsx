@@ -70,8 +70,9 @@ export default function AdminDashboard() {
                         <Tab key="users" title="Comptes Citoyens">
                             <div className="mt-6 bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
                                 <h2 className="text-xl font-bold text-gray-800 mb-2">Gestion des utilisateurs</h2>
-                                <p className="text-gray-500 mb-6">Consultez la liste des citoyens inscrits et gérez l'activation ou la suspension de leurs comptes.</p>
-                                <AdminUsersManager token={(session as any)?.accessToken} currentUserId={currentUserId} />
+                                <p className="text-gray-500 mb-6">Consultez la liste des citoyens inscrits et gérez l'activation ou les rôles des comptes.</p>
+                                {/* On ajoute la prop role ici 👇 */}
+                                <AdminUsersManager token={(session as any)?.accessToken} currentUserId={currentUserId} role={role} />
                             </div>
                         </Tab>
                     )}

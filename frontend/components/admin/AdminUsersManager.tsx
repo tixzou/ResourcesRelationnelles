@@ -5,13 +5,16 @@ import { Button } from "@heroui/button";
 import { Chip } from "@heroui/chip";
 import { Spinner } from "@heroui/spinner";
 import { Input } from "@heroui/input";
+import { Select, SelectItem } from "@heroui/select";
 import { Ban, CheckCircle, Trash2, Search, Shield, MessageSquare, FileText, UserCircle } from "lucide-react";
 import { addToast } from "@heroui/toast";
 
-export default function AdminUsersManager({ token, currentUserId }: { token: string, currentUserId: number }) {
+export default function AdminUsersManager({ token, currentUserId, role }: { token: string, currentUserId: number, role: string }) {
     const [users, setUsers] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
     const [search, setSearch] = useState("");
+
+    const isSuperAdmin = role === "SUPER_ADMINISTRATEUR";
 
     const fetchUsers = async () => {
         setLoading(true);
@@ -22,6 +25,8 @@ export default function AdminUsersManager({ token, currentUserId }: { token: str
             const data = await res.json();
             if (res.ok && Array.isArray(data)) {
                 setUsers(data);
+            } else {
+                console.error("Erreur API:", data);
             }
         } catch (error) {
             addToast({ title: "Erreur réseau", color: "danger" });
@@ -32,6 +37,7 @@ export default function AdminUsersManager({ token, currentUserId }: { token: str
 
     useEffect(() => { if (token) fetchUsers(); }, [token]);
 
+    // Retour de notre filtre robuste !
     const filteredUsers = users.filter((u) => {
         const query = search.toLowerCase();
         return (
@@ -58,8 +64,25 @@ export default function AdminUsersManager({ token, currentUserId }: { token: str
         } catch (error) { addToast({ title: "Erreur réseau", color: "danger" }); }
     };
 
+    const handleRoleChange = async (id: number, newRole: string) => {
+        try {
+            const res = await fetch(`http://localhost:3001/admin/users/${id}/role`, {
+                method: "PATCH",
+                headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+                body: JSON.stringify({ role: newRole })
+            });
+
+            if (res.ok) {
+                setUsers(prev => prev.map(u => u.id === id ? { ...u, role: newRole } : u));
+                addToast({ title: "Rôle mis à jour avec succès", color: "success" });
+            } else {
+                addToast({ title: "Erreur lors du changement de rôle", color: "danger" });
+            }
+        } catch (error) { addToast({ title: "Erreur réseau", color: "danger" }); }
+    };
+
     const handleDelete = async (id: number) => {
-        if (!confirm("Voulez-vous vraiment supprimer cet utilisateur définitivement ? Toutes ses données seront perdues.")) return;
+        if (!confirm("Voulez-vous vraiment supprimer cet utilisateur définitivement ?")) return;
         try {
             const res = await fetch(`http://localhost:3001/admin/users/${id}`, {
                 method: "DELETE", headers: { Authorization: `Bearer ${token}` }
@@ -93,9 +116,7 @@ export default function AdminUsersManager({ token, currentUserId }: { token: str
                     startContent={<Search size={20} className="text-gray-400" />}
                     variant="bordered"
                 />
-                <Button variant="flat" className="h-10 px-6 bg-gray-100 shrink-0" onPress={() => setSearch("")}>
-                    Réinitialiser
-                </Button>
+                <Button variant="flat" className="h-10 px-6 bg-gray-100 shrink-0" onPress={() => setSearch("")}>Reset</Button>
             </div>
 
             <div className="flex flex-col gap-4 w-full">
@@ -106,10 +127,8 @@ export default function AdminUsersManager({ token, currentUserId }: { token: str
                         const isCurrentUser = user.id === currentUserId;
 
                         return (
-                            // Utilisation d'une Grid au lieu de Flex pour garantir l'alignement
                             <div key={user.id} className={`grid grid-cols-1 lg:grid-cols-12 gap-4 items-center p-5 bg-white border rounded-xl shadow-sm transition-all ${!user.isActive ? 'border-orange-200 bg-orange-50/30' : 'border-gray-200 hover:shadow-md'} ${isCurrentUser ? 'border-blue-200 bg-blue-50/30' : ''}`}>
                                 
-                                {/* Colonne 1 : Infos Citoyen (Prend 5 colonnes sur 12) */}
                                 <div className="flex flex-col gap-1 lg:col-span-5">
                                     <div className="flex items-center gap-2">
                                         <h3 className={`font-bold text-base line-clamp-1 ${!user.isActive ? 'text-gray-500' : 'text-[#1B365D]'}`}>
@@ -120,37 +139,40 @@ export default function AdminUsersManager({ token, currentUserId }: { token: str
                                         </Chip>
                                     </div>
                                     <p className="text-sm text-gray-500">{user.email}</p>
-                                    
-                                    <div className="flex flex-wrap items-center gap-3 mt-2 text-xs text-gray-400">
-                                        <span>Inscrit le {new Date(user.createdAt).toLocaleDateString('fr-FR')}</span>
-                                        <span className="text-gray-300">•</span>
-                                        <div className="flex items-center gap-1">
-                                            <FileText size={12} /> {user._count?.ressources || 0} ressources
-                                        </div>
-                                        <div className="flex items-center gap-1">
-                                            <MessageSquare size={12} /> {user._count?.comments || 0} commentaires
-                                        </div>
+                                    <div className="flex items-center gap-3 mt-1 text-xs text-gray-400">
+                                        <div className="flex items-center gap-1"><FileText size={12} /> {user._count?.ressources || 0} res.</div>
+                                        <div className="flex items-center gap-1"><MessageSquare size={12} /> {user._count?.comments || 0} com.</div>
                                     </div>
                                 </div>
 
-                                {/* Colonne 2 : Affichage du Rôle (Prend 3 colonnes sur 12) */}
                                 <div className="flex items-center gap-2 lg:col-span-3">
-                                    <Shield size={18} className={user.role === "CITOYEN" ? "text-gray-400" : "text-blue-600"} />
-                                    <span className={`text-sm font-medium ${user.role === "CITOYEN" ? "text-gray-500" : "text-[#1B365D]"}`}>
-                                        {formatRole(user.role)}
-                                    </span>
+                                    {isSuperAdmin && !isCurrentUser ? (
+                                        <Select
+                                            aria-label="Changer le rôle"
+                                            size="sm"
+                                            variant="bordered"
+                                            selectedKeys={[user.role]}
+                                            className="max-w-[160px]"
+                                            onSelectionChange={(keys) => handleRoleChange(user.id, Array.from(keys)[0] as string)}
+                                        >
+                                            <SelectItem key="CITOYEN">Citoyen</SelectItem>
+                                            <SelectItem key="MODERATEUR">Modérateur</SelectItem>
+                                            <SelectItem key="ADMINISTRATEUR">Administrateur</SelectItem>
+                                            <SelectItem key="SUPER_ADMINISTRATEUR">Super Admin</SelectItem>
+                                        </Select>
+                                    ) : (
+                                        <div className="flex items-center gap-2">
+                                            <Shield size={18} className={user.role === "CITOYEN" ? "text-gray-400" : "text-blue-600"} />
+                                            <span className={`text-sm font-medium ${user.role === "CITOYEN" ? "text-gray-500" : "text-[#1B365D]"}`}>
+                                                {formatRole(user.role)}
+                                            </span>
+                                        </div>
+                                    )}
                                 </div>
 
-                                {/* Colonne 3 : Actions Administrateur (Prend 4 colonnes sur 12, collé à droite) */}
                                 <div className="flex items-center gap-2 justify-start lg:justify-end lg:col-span-4">
                                     {isCurrentUser ? (
-                                        <Chip 
-                                            size="sm" 
-                                            variant="flat" 
-                                            color="primary" 
-                                            startContent={<UserCircle size={14} className="ml-1" />}
-                                            className="font-bold px-2 py-4"
-                                        >
+                                        <Chip size="sm" variant="flat" color="primary" startContent={<UserCircle size={14} />} className="font-bold">
                                             Votre compte
                                         </Chip>
                                     ) : (
@@ -164,10 +186,7 @@ export default function AdminUsersManager({ token, currentUserId }: { token: str
                                             >
                                                 {user.isActive ? "Suspendre" : "Réactiver"}
                                             </Button>
-                                            
-                                            <Button isIconOnly color="danger" size="sm" variant="light" onPress={() => handleDelete(user.id)}>
-                                                <Trash2 size={16} />
-                                            </Button>
+                                            <Button isIconOnly color="danger" size="sm" variant="light" onPress={() => handleDelete(user.id)}><Trash2 size={16} /></Button>
                                         </>
                                     )}
                                 </div>

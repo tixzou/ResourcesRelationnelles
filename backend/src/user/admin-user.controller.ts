@@ -10,7 +10,7 @@ import { UpdateRoleDto } from './dto/update-role.dto';
 @ApiTags('admin/users')
 @ApiBearerAuth()
 @UseGuards(AuthGuard, RolesGuard)
-@Roles(Role.ADMINISTRATEUR) // 👈 Seul l'admin a accès à tout ce contrôleur
+@Roles(Role.ADMINISTRATEUR, Role.SUPER_ADMINISTRATEUR) // 👈 Seul l'admin a accès à tout ce contrôleur
 @Controller('admin/users')
 export class AdminUserController {
     constructor(private readonly userService: UserService) { }

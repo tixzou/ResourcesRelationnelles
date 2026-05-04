@@ -24,77 +24,98 @@ model User {
   isActive  Boolean  @default(true)
   createdAt DateTime @default(now())
   updatedAt DateTime @default(now()) @updatedAt
-  favorites Favorite[]
 
-  // Relations inverses (ce que l'utilisateur possède)
-  ressources       Ressource[]
-  comments         Comment[]
-  messagesSent     Message[]   @relation("SentMessages")
-  messagesReceived Message[]   @relation("ReceivedMessages")
-  connections ConnectionLog[]
-  savedResources SavedResource[]
+  // Relations
+  ressources         Ressource[]
+  comments           Comment[]
+  favorites          Favorite[]
+  savedResources     SavedResource[]
+  exploitedResources ExploitedResource[] // Pour le tableau de bord de progression
+  participations     Participation[]     // Pour les activités/jeux
+  messagesSent       Message[]           @relation("SentMessages")
+  connections        ConnectionLog[]
 }
 
 model Category {
-  id   Int    @id @default(autoincrement())
-  name String @unique
-
-  //Une catégorie peut avoir plusieurs ressources
+  id         Int         @id @default(autoincrement())
+  name       String      @unique
   ressources Ressource[]
 }
 
 model Ressource {
-  id        Int      @id @default(autoincrement())
-  title     String
-  content   String? // Le contenu peut être du texte, un lien vidéo, etc.
-  type      String // Ex: VIDEO, ARTICLE, JEU
-  isPublic  Boolean  @default(true) // Permet de gérer les ressources privées/publiques
-  createdAt DateTime @default(now())
-  updatedAt DateTime @default(now()) @updatedAt
+  id          Int      @id @default(autoincrement())
+  title       String
+  content     String?
+  type        String   // VIDEO, ARTICLE, JEU, ACTIVITE
+  isPublic    Boolean  @default(true)
+  isValidated Boolean  @default(false)
+  views       Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @default(now()) @updatedAt
 
-  // Clés étrangères et Relations
-  authorId Int
-  author   User @relation(fields: [authorId], references: [id])
+  authorId    Int
+  author      User     @relation(fields: [authorId], references: [id])
+  categoryId  Int?
+  category    Category? @relation(fields: [categoryId], references: [id])
 
-  categoryId Int? // Optionnel : au cas où une ressource n'a pas encore de catégorie
-  category   Category? @relation(fields: [categoryId], references: [id])
-
-  comments Comment[]
-  isValidated      Boolean    @default(false) 
-  views            Int        @default(0)     
-  favoritedBy      Favorite[]
-  viewLogs         ViewLog[]
+  // Interactions
+  comments       Comment[]
+  favoritedBy    Favorite[]
   savedBy        SavedResource[]
+  exploitedBy    ExploitedResource[]
+  viewLogs       ViewLog[]
+  participations Participation[] // Les gens inscrits à cette activité
+  messages       Message[]       // Le chat de groupe de cette ressource
 }
 
 model Comment {
-  id        Int      @id @default(autoincrement())
-  content   String
-  createdAt DateTime @default(now())
-
-  authorId Int
-  author   User @relation(fields: [authorId], references: [id])
-
+  id          Int      @id @default(autoincrement())
+  content     String
+  createdAt   DateTime @default(now())
+  authorId    Int
+  author      User     @relation(fields: [authorId], references: [id])
   ressourceId Int
   ressource   Ressource @relation(fields: [ressourceId], references: [id], onDelete: Cascade)
 
-  // --- AJOUTS POUR LES THREADS ---
-  parentId Int? // L'ID du commentaire parent (null si c'est un commentaire racine)
-  parent   Comment?  @relation("Replies", fields: [parentId], references: [id], onDelete: Cascade)
-  replies  Comment[] @relation("Replies")
+  parentId    Int?
+  parent      Comment?  @relation("Replies", fields: [parentId], references: [id], onDelete: Cascade)
+  replies     Comment[] @relation("Replies")
 }
 
+// MODIFIÉ : Message lié à une ressource pour le chat d'activité
 model Message {
-  id        Int      @id @default(autoincrement())
-  content   String
-  createdAt DateTime @default(now())
+  id          Int       @id @default(autoincrement())
+  content     String
+  createdAt   DateTime  @default(now())
+  senderId    Int
+  sender      User      @relation("SentMessages", fields: [senderId], references: [id])
+  ressourceId Int
+  ressource   Ressource @relation(fields: [ressourceId], references: [id], onDelete: Cascade)
+}
 
-  // Relations pour la messagerie entre participants (comme demandé dans le sujet)
-  senderId Int
-  sender   User @relation("SentMessages", fields: [senderId], references: [id])
+// NOUVEAU : Participation aux activités/jeux
+model Participation {
+  id          Int       @id @default(autoincrement())
+  userId      Int
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  ressourceId Int
+  ressource   Ressource @relation(fields: [ressourceId], references: [id], onDelete: Cascade)
+  status      String    @default("INVITED") // INVITED, ACCEPTED, DECLINED
+  createdAt   DateTime  @default(now())
 
-  receiverId Int
-  receiver   User @relation("ReceivedMessages", fields: [receiverId], references: [id])
+  @@unique([userId, ressourceId])
+}
+
+// NOUVEAU : Suivi de progression (Ressource exploitée)
+model ExploitedResource {
+  id          Int       @id @default(autoincrement())
+  userId      Int
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  ressourceId Int
+  ressource   Ressource @relation(fields: [ressourceId], references: [id], onDelete: Cascade)
+  createdAt   DateTime  @default(now())
+
+  @@unique([userId, ressourceId])
 }
 
 model Favorite {
@@ -105,7 +126,18 @@ model Favorite {
   ressource   Ressource @relation(fields: [ressourceId], references: [id], onDelete: Cascade)
   createdAt   DateTime  @default(now())
 
-  @@unique([userId, ressourceId]) // Un utilisateur ne peut liker qu'une fois
+  @@unique([userId, ressourceId])
+}
+
+model SavedResource {
+  id          Int       @id @default(autoincrement())
+  userId      Int
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  ressourceId Int
+  ressource   Ressource @relation(fields: [ressourceId], references: [id], onDelete: Cascade)
+  createdAt   DateTime  @default(now())
+
+  @@unique([userId, ressourceId])
 }
 
 model ViewLog {
@@ -120,15 +152,4 @@ model ConnectionLog {
   userId    Int
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   createdAt DateTime @default(now())
-}
-
-model SavedResource {
-  id          Int       @id @default(autoincrement())
-  userId      Int
-  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
-  ressourceId Int
-  ressource   Ressource @relation(fields: [ressourceId], references: [id], onDelete: Cascade)
-  createdAt   DateTime  @default(now())
-
-  @@unique([userId, ressourceId]) // On ne peut mettre de côté qu'une seule fois la même ressource
 }

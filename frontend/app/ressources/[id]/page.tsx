@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { useParams } from "next/navigation";
 import { useSession } from "next-auth/react";
 
@@ -16,13 +16,14 @@ import { Modal, ModalContent, ModalHeader, ModalBody, ModalFooter, useDisclosure
 import { Dropdown, DropdownTrigger, DropdownMenu, DropdownItem } from "@heroui/dropdown";
 
 // Icônes
-import { Calendar, MessageSquare, ArrowLeft, Reply, X, Trash2, MoreHorizontal, Heart } from "lucide-react";
+import { Calendar, MessageSquare, ArrowLeft, Reply, Trash2, MoreHorizontal, Heart } from "lucide-react";
 import Link from "next/link";
 import { addToast } from "@heroui/toast";
 
 export default function RessourceDetail() {
   const { id } = useParams();
   const { data: session, status } = useSession();
+  const token = (session as any)?.accessToken;
 
   const [ressource, setRessource] = useState<any>(null);
   const [loading, setLoading] = useState(true);
@@ -33,33 +34,64 @@ export default function RessourceDetail() {
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
   const [commentToDelete, setCommentToDelete] = useState<number | null>(null);
 
-  const fetchRessource = async () => {
+  const fetchRessource = useCallback(async () => {
     try {
       const headers: HeadersInit = {};
-      if ((session as any)?.accessToken) {
-        headers["Authorization"] = `Bearer ${(session as any).accessToken}`;
-      }
+      if (token) headers["Authorization"] = `Bearer ${token}`;
 
-      const res = await fetch(`http://localhost:3001/ressource/${id}`, {
-        headers: headers
-      });
-
+      const res = await fetch(`http://localhost:3001/ressource/${id}`, { headers });
       if (!res.ok) throw new Error("Ressource non trouvée");
       const data = await res.json();
       setRessource(data);
     } catch (error) {
       console.error("Erreur chargement:", error);
-      setRessource(null);
     } finally {
       setLoading(false);
     }
-  };
+  }, [id, token]);
 
   useEffect(() => {
     if (id && status !== "loading") {
       fetchRessource();
     }
-  }, [id, session, status]);
+  }, [id, status, fetchRessource]);
+
+  const handleToggleFavorite = async () => {
+    if (!session || !token) return;
+
+    // Sauvegarde de l'ancien état au cas où l'API échoue
+    const previousState = ressource.isFavorited;
+
+    // 1. Mise à jour UI IMMEDIATE (Optimiste)
+    setRessource((prev: any) => ({
+      ...prev,
+      isFavorited: !previousState
+    }));
+
+    try {
+      const res = await fetch(`http://localhost:3001/ressource/${id}/favorite`, {
+        method: "POST",
+        headers: { "Authorization": `Bearer ${token}` }
+      });
+
+      if (res.ok) {
+        addToast({
+          title: !previousState ? "Ajouté aux favoris" : "Retiré des favoris",
+          color: !previousState ? "danger" : "default",
+          variant: "flat"
+        });
+        // NOTE: On ne rappelle PAS fetchRessource() ici pour éviter que l'UI ne "saute"
+      } else {
+        throw new Error();
+      }
+    } catch (error) {
+      // 2. Rollback si erreur API
+      setRessource((prev: any) => ({ ...prev, isFavorited: previousState }));
+      addToast({ title: "Erreur lors de la mise à jour", color: "danger" });
+    }
+  };
+
+  // ... (Garde tes fonctions handlePostComment et handleConfirmDelete identiques) ...
 
   const handlePostComment = async (content: string, parentId: number | null = null) => {
     if (!content.trim()) return;
@@ -68,20 +100,17 @@ export default function RessourceDetail() {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          "Authorization": `Bearer ${(session as any)?.accessToken}`
+          "Authorization": `Bearer ${token}`
         },
         body: JSON.stringify({ content, ressourceId: Number(id), parentId })
       });
-
       if (res.ok) {
         setMainComment("");
         setReplyInput("");
         setReplyToId(null);
         fetchRessource();
       }
-    } catch (error) {
-      console.error("Erreur post commentaire:", error);
-    }
+    } catch (error) {}
   };
 
   const handleConfirmDelete = async () => {
@@ -89,36 +118,12 @@ export default function RessourceDetail() {
     try {
       await fetch(`http://localhost:3001/comment/${commentToDelete}`, {
         method: "DELETE",
-        headers: { "Authorization": `Bearer ${(session as any)?.accessToken}` }
+        headers: { "Authorization": `Bearer ${token}` }
       });
       fetchRessource();
     } finally {
       setCommentToDelete(null);
       onOpenChange();
-    }
-  };
-
-  const handleToggleFavorite = async () => {
-    if (!session) return;
-
-    try {
-      const res = await fetch(`http://localhost:3001/ressource/${id}/favorite`, {
-        method: "POST",
-        headers: {
-          "Authorization": `Bearer ${(session as any)?.accessToken}`
-        }
-      });
-
-      if (res.ok) {
-        fetchRessource();
-        addToast({
-          title: ressource.isFavorited ? "Retiré des favoris" : "Ajouté aux favoris",
-          color: ressource.isFavorited ? "default" : "danger",
-          variant: "flat"
-        });
-      }
-    } catch (error) {
-      console.error("Erreur favori:", error);
     }
   };
 
@@ -129,17 +134,14 @@ export default function RessourceDetail() {
 
   return (
     <div className="min-h-screen bg-gray-50 pb-20">
-      {/* Header DA - Bleu Marine profond */}
       <div className="bg-[#1B365D] text-white py-14 px-6 lg:px-24">
         <div className="max-w-7xl mx-auto">
           <Button as={Link} href="/ressources" variant="light" startContent={<ArrowLeft size={18} />} className="text-white/70 hover:text-white mb-6 p-0 h-auto font-medium">
             Retour au catalogue
           </Button>
-          {/* Remplacement du titre simple par Titre + Coeur */}
+          
           <div className="flex justify-between items-center mb-3">
-            <h1 className="text-4xl font-bold tracking-tight">{ressource.title}</h1>
-
-            {/* Le bouton n'apparaît que si l'utilisateur est connecté */}
+            <h1 className="text-4xl font-bold tracking-tight text-left">{ressource.title}</h1>
             {session && (
               <Button
                 isIconOnly
@@ -150,12 +152,13 @@ export default function RessourceDetail() {
               >
                 <Heart
                   size={24}
-                  // text-red-500 colorie les contours, fill-red-500 remplit l'intérieur
                   className={ressource.isFavorited ? "fill-red-500 text-red-500" : "text-white"}
                 />
               </Button>
             )}
-          </div>          <div className="flex items-center gap-2 text-blue-100/60 text-sm">
+          </div>
+          
+          <div className="flex items-center gap-2 text-blue-100/60 text-sm">
             <span>Par {ressource.author?.firstName} {ressource.author?.lastName}</span>
             <span>•</span>
             <Calendar size={14} />
@@ -166,10 +169,8 @@ export default function RessourceDetail() {
 
       <div className="max-w-7xl mx-auto px-6 lg:px-24 py-10 grid grid-cols-1 lg:grid-cols-3 gap-10">
         <div className="lg:col-span-2 space-y-10">
-
-          {/* Contenu Article */}
           <Card shadow="sm" className="border-none rounded-xl overflow-hidden">
-            <CardBody className="p-10 text-gray-700 text-lg leading-relaxed">
+            <CardBody className="p-10 text-gray-700 text-lg leading-relaxed text-left">
               <div className="flex gap-2 mb-8">
                 <Chip color="primary" variant="flat" size="sm" className="font-bold px-3 uppercase tracking-wider">{ressource.type}</Chip>
                 {ressource.category && <Chip variant="flat" size="sm" className="bg-gray-100 text-gray-500 font-medium px-3">● {ressource.category.name}</Chip>}
@@ -178,14 +179,12 @@ export default function RessourceDetail() {
             </CardBody>
           </Card>
 
-
           {/* Section Discussion */}
           <section className="space-y-8">
             <h2 className="text-2xl font-bold text-[#1B365D] flex items-center gap-2">
               <MessageSquare size={22} className="text-blue-500" /> Discussion
             </h2>
 
-            {/* Nouveau commentaire principal */}
             {session && (
               <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
                 <Textarea
@@ -203,15 +202,12 @@ export default function RessourceDetail() {
               </div>
             )}
 
-            {/* Liste des messages */}
             <div className="space-y-8">
               {rootComments.map((root: any) => {
                 const isMyComment = session && Number((session as any).user?.id) === Number(root.authorId);
-
                 return (
                   <div key={root.id} className="space-y-4">
-                    {/* --- BULLE RACINE --- */}
-                    <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
+                    <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100 text-left">
                       <div className="flex justify-between items-start mb-4">
                         <div className="flex items-center gap-3">
                           <Avatar name={root.author?.firstName} size="sm" className="bg-[#1B365D] text-white font-bold" />
@@ -220,7 +216,6 @@ export default function RessourceDetail() {
                             <p className="text-[11px] text-gray-400 font-medium uppercase tracking-tighter">{new Date(root.createdAt).toLocaleDateString()}</p>
                           </div>
                         </div>
-
                         {isMyComment && (
                           <Dropdown placement="bottom-end">
                             <DropdownTrigger>
@@ -234,28 +229,13 @@ export default function RessourceDetail() {
                           </Dropdown>
                         )}
                       </div>
-
                       <p className="text-[15px] text-gray-700 leading-normal mb-5">{root.content}</p>
-
-                      <Button
-                        size="sm" variant="light"
-                        startContent={<Reply size={14} />}
-                        className="text-gray-500 font-bold hover:text-blue-600 px-0 h-auto"
-                        onPress={() => setReplyToId(replyToId === root.id ? null : root.id)}
-                      >
+                      <Button size="sm" variant="light" startContent={<Reply size={14} />} className="text-gray-500 font-bold hover:text-blue-600 px-0 h-auto" onPress={() => setReplyToId(replyToId === root.id ? null : root.id)}>
                         Répondre
                       </Button>
-
-                      {/* Textarea de réponse sous Racine */}
                       {replyToId === root.id && (
                         <div className="mt-5 pt-5 border-t border-gray-50 space-y-3">
-                          <Textarea
-                            autoFocus
-                            variant="bordered"
-                            placeholder={`Répondre à ${root.author?.firstName}...`}
-                            value={replyInput}
-                            onValueChange={setReplyInput}
-                          />
+                          <Textarea autoFocus variant="bordered" placeholder={`Répondre à ${root.author?.firstName}...`} value={replyInput} onValueChange={setReplyInput} />
                           <div className="flex justify-end gap-2">
                             <Button size="sm" variant="light" onPress={() => setReplyToId(null)}>Annuler</Button>
                             <Button size="sm" color="primary" className="font-bold" onPress={() => handlePostComment(replyInput, root.id)}>Répondre</Button>
@@ -263,66 +243,6 @@ export default function RessourceDetail() {
                         </div>
                       )}
                     </div>
-
-                    {/* --- RÉPONSES (THREAD) --- */}
-                    {ressource.comments?.filter((r: any) => r.parentId === root.id).map((reply: any) => {
-                      const isMyReply = session && Number((session as any).user?.id) === Number(reply.authorId);
-                      return (
-                        <div key={reply.id} className="ml-10 bg-white p-5 rounded-xl border border-gray-100 shadow-sm space-y-4">
-                          <div className="flex justify-between items-start">
-                            <div className="flex items-center gap-3">
-                              <Avatar name={reply.author?.firstName} size="sm" className="bg-gray-200 text-gray-600 font-bold" />
-                              <div>
-                                <p className="font-bold text-xs text-[#1B365D]">{reply.author?.firstName} {reply.author?.lastName}</p>
-                                <p className="text-[10px] text-gray-400 font-medium">{new Date(reply.createdAt).toLocaleDateString()}</p>
-                              </div>
-                            </div>
-
-                            {/* Menu d'options pour les RÉPONSES (Nouveauté) */}
-                            {isMyReply && (
-                              <Dropdown placement="bottom-end">
-                                <DropdownTrigger>
-                                  <Button isIconOnly size="sm" variant="light" className="text-gray-400 h-8 w-8"><MoreHorizontal size={16} /></Button>
-                                </DropdownTrigger>
-                                <DropdownMenu aria-label="Actions">
-                                  <DropdownItem key="delete" color="danger" className="text-danger" startContent={<Trash2 size={16} />} onPress={() => { setCommentToDelete(reply.id); onOpen(); }}>
-                                    Supprimer
-                                  </DropdownItem>
-                                </DropdownMenu>
-                              </Dropdown>
-                            )}
-                          </div>
-
-                          <p className="text-sm text-gray-700">{reply.content}</p>
-
-                          <Button
-                            size="sm" variant="light"
-                            startContent={<Reply size={14} />}
-                            className="text-gray-500 font-bold hover:text-blue-600 px-0 h-auto"
-                            onPress={() => setReplyToId(replyToId === reply.id ? null : reply.id)}
-                          >
-                            Répondre
-                          </Button>
-
-                          {/* Textarea de réponse sous une Réponse */}
-                          {replyToId === reply.id && (
-                            <div className="mt-4 pt-4 border-t border-gray-50 space-y-3">
-                              <Textarea
-                                autoFocus
-                                variant="bordered"
-                                placeholder={`Répondre à ${reply.author?.firstName}...`}
-                                value={replyInput}
-                                onValueChange={setReplyInput}
-                              />
-                              <div className="flex justify-end gap-2">
-                                <Button size="sm" variant="light" onPress={() => setReplyToId(null)}>Annuler</Button>
-                                <Button size="sm" color="primary" className="font-bold" onPress={() => handlePostComment(replyInput, root.id)}>Répondre</Button>
-                              </div>
-                            </div>
-                          )}
-                        </div>
-                      );
-                    })}
                   </div>
                 );
               })}
@@ -330,11 +250,10 @@ export default function RessourceDetail() {
           </section>
         </div>
 
-        {/* Sidebar Sidebar - Style Pro */}
         <aside className="space-y-6">
           <Card shadow="sm" className="border-none rounded-xl overflow-hidden">
             <div className="bg-[#1B365D] p-4 text-white font-bold text-xs uppercase tracking-widest text-center">Informations</div>
-            <CardBody className="p-8 space-y-6">
+            <CardBody className="p-8 space-y-6 text-left">
               <div className="flex items-center gap-4">
                 <div className="p-3 bg-blue-50 rounded-xl text-[#1B365D]"><Calendar size={20} /></div>
                 <div>
@@ -344,9 +263,9 @@ export default function RessourceDetail() {
               </div>
               <Divider className="opacity-50" />
               <div className="flex items-center gap-4">
-                <Avatar isBordered color="primary" name={ressource.author?.firstName} size="md" className="ring-[#1B365D]/10" />
+                <Avatar isBordered color="primary" name={ressource.author?.firstName} size="md" />
                 <div>
-                  <p className="text-[10px] uppercase font-bold text-gray-400 tracking-wider">Expert / Auteur</p>
+                  <p className="text-[10px] uppercase font-bold text-gray-400 tracking-wider">Auteur</p>
                   <p className="text-sm font-bold text-[#1B365D]">{ressource.author?.firstName} {ressource.author?.lastName}</p>
                 </div>
               </div>
@@ -360,10 +279,10 @@ export default function RessourceDetail() {
           {(onClose) => (
             <>
               <ModalHeader className="text-[#1B365D] font-bold">Suppression du contenu</ModalHeader>
-              <ModalBody className="text-gray-600">Cette action retirera définitivement votre message de cette discussion. Confirmer ?</ModalBody>
+              <ModalBody className="text-gray-600">Confirmer la suppression ?</ModalBody>
               <ModalFooter>
-                <Button variant="light" className="font-medium" onPress={onClose}>Annuler</Button>
-                <Button color="danger" className="font-bold px-6" onPress={handleConfirmDelete}>Oui, supprimer</Button>
+                <Button variant="light" onPress={onClose}>Annuler</Button>
+                <Button color="danger" className="font-bold" onPress={handleConfirmDelete}>Supprimer</Button>
               </ModalFooter>
             </>
           )}
