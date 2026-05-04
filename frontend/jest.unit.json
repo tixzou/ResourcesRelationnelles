@@ -1,0 +1,17 @@
+{
+  "moduleFileExtensions": ["js", "json", "ts", "tsx"],
+  "rootDir": ".",
+  "testEnvironment": "jsdom",
+  "setupFilesAfterEnv": ["<rootDir>/test/setup.ts"],
+  "testMatch": ["<rootDir>/test/unit/**/*.test.tsx"],
+  "moduleNameMapper": {
+    "^@/(.*)$": "<rootDir>/$1",
+    "^@heroui/(.*)$": "<rootDir>/test/mocks/heroui.tsx",
+    "^next/image$": "<rootDir>/test/mocks/next-image.tsx",
+    "^next/link$": "<rootDir>/test/mocks/next-link.tsx",
+    "\\.(css|less|scss|sass)$": "identity-obj-proxy"
+  },
+  "transform": {
+    "^.+\\.(t|j)sx?$": ["ts-jest", { "tsconfig": { "jsx": "react-jsx" } }]
+  }
+}
