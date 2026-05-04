@@ -42,6 +42,10 @@ export default function AdminRessourcesManager({ token, role }: { token: string,
     const [replyingToId, setReplyingToId] = useState<number | null>(null);
     const [replyText, setReplyText] = useState("");
 
+    // --- ÉTATS MODALE DE CONFIRMATION UNIFIÉE (SUPPRESSION) ---
+    const { isOpen: isConfirmOpen, onOpen: onConfirmOpen, onOpenChange: onConfirmOpenChange, onClose: onConfirmClose } = useDisclosure();
+    const [deleteTarget, setDeleteTarget] = useState<{ type: "ressource" | "category" | "comment", id: number } | null>(null);
+
     // Droits élevés (Admin / Super Admin)
     const isAdmin = role === "ADMINISTRATEUR" || role === "SUPER_ADMINISTRATEUR";
 
@@ -78,9 +82,26 @@ export default function AdminRessourcesManager({ token, role }: { token: string,
     const pendingRessources = filteredRessources.filter(r => !r.isValidated);
     const validatedRessources = filteredRessources.filter(r => r.isValidated);
 
+    // --- GESTION DE LA MODALE DE SUPPRESSION ---
+    const openDeleteModal = (type: "ressource" | "category" | "comment", id: number) => {
+        setDeleteTarget({ type, id });
+        onConfirmOpen();
+    };
+
+    const confirmDelete = async () => {
+        if (!deleteTarget) return;
+        const { type, id } = deleteTarget;
+
+        if (type === "ressource") await handleAction(id, "delete");
+        else if (type === "category") await handleDeleteCat(id);
+        else if (type === "comment") await handleDeleteComment(id);
+
+        onConfirmClose();
+        setDeleteTarget(null);
+    };
+
     // --- ACTIONS ---
     const handleAction = async (id: number, action: "validate" | "suspend" | "delete") => {
-        if (action === "delete" && !confirm("Voulez-vous vraiment effectuer cette action ?")) return;
         const urlMap = {
             validate: `http://localhost:3001/admin/ressources/${id}/validate`,
             suspend: `http://localhost:3001/admin/ressources/${id}/suspend`,
@@ -146,9 +167,8 @@ export default function AdminRessourcesManager({ token, role }: { token: string,
     };
 
     const handleDeleteComment = async (commentId: number) => {
-        if (!confirm("Voulez-vous vraiment supprimer ce commentaire ?")) return;
         try {
-            const res = await fetch(`http://localhost:3001/admin/comments/${commentId}`, {
+            const res = await fetch(`http://localhost:3001/comment/admin/${commentId}`, {
                 method: "DELETE", headers: { Authorization: `Bearer ${token}` }
             });
             if (res.ok) {
@@ -202,7 +222,7 @@ export default function AdminRessourcesManager({ token, role }: { token: string,
                         <Button size="sm" variant="light" color="primary" className="h-6 min-w-0 px-2 text-[11px]" onPress={() => setReplyingToId(replyingToId === comment.id ? null : comment.id)}>
                             Répondre
                         </Button>
-                        <Button size="sm" isIconOnly variant="light" color="danger" className="h-6 w-6 min-w-0" onPress={() => handleDeleteComment(comment.id)} title="Supprimer">
+                        <Button size="sm" isIconOnly variant="light" color="danger" className="h-6 w-6 min-w-0" onPress={() => openDeleteModal("comment", comment.id)} title="Supprimer">
                             <Trash2 size={14}/>
                         </Button>
                     </div>
@@ -256,7 +276,6 @@ export default function AdminRessourcesManager({ token, role }: { token: string,
     };
 
     const handleDeleteCat = async (id: number) => {
-        if (!confirm("Attention, la suppression d'une catégorie peut impacter les ressources associées. Continuer ?")) return;
         try {
             const res = await fetch(`http://localhost:3001/category/${id}`, {
                 method: "DELETE", headers: { Authorization: `Bearer ${token}` }
@@ -306,21 +325,19 @@ export default function AdminRessourcesManager({ token, role }: { token: string,
 
                 {isPending ? (
                     <>
-                        <Button isIconOnly color="danger" variant="flat" size="sm" onPress={() => handleAction(r.id, "delete")} title="Rejeter"><XCircle size={16} /></Button>
+                        <Button isIconOnly color="danger" variant="flat" size="sm" onPress={() => openDeleteModal("ressource", r.id)} title="Rejeter"><XCircle size={16} /></Button>
                         <Button color="success" size="sm" className="text-white font-medium" startContent={<CheckCircle size={16} />} onPress={() => handleAction(r.id, "validate")}>Approuver</Button>
                     </>
                 ) : (
                     <>
-                        {/* SUSPENDRE : Désormais réservé à l'ADMIN uniquement */}
                         {isAdmin && (
                             <Button color="warning" size="sm" variant="flat" startContent={<Ban size={16} />} onPress={() => handleAction(r.id, "suspend")}>
                                 Suspendre
                             </Button>
                         )}
                         
-                        {/* SUPPRIMER : Réservé Admin */}
                         {isAdmin && (
-                            <Button isIconOnly color="danger" size="sm" variant="light" onPress={() => handleAction(r.id, "delete")}><Trash2 size={16} /></Button>
+                            <Button isIconOnly color="danger" size="sm" variant="light" onPress={() => openDeleteModal("ressource", r.id)}><Trash2 size={16} /></Button>
                         )}
                     </>
                 )}
@@ -378,7 +395,7 @@ export default function AdminRessourcesManager({ token, role }: { token: string,
                                         <Button isIconOnly variant="flat" size="sm" onPress={() => {
                                             setEditingCatId(cat.id); setFormCatName(cat.name); onCatOpen();
                                         }}><Edit size={16} /></Button>
-                                        <Button isIconOnly color="danger" variant="light" size="sm" onPress={() => handleDeleteCat(cat.id)}><Trash2 size={16} /></Button>
+                                        <Button isIconOnly color="danger" variant="light" size="sm" onPress={() => openDeleteModal("category", cat.id)}><Trash2 size={16} /></Button>
                                     </div>
                                 </div>
                             ))}
@@ -450,6 +467,54 @@ export default function AdminRessourcesManager({ token, role }: { token: string,
                     )}
                 </ModalContent>
             </Modal>
+
+            {/* --- NOUVEAU : MODALE DE CONFIRMATION UNIFIÉE --- */}
+            <Modal isOpen={isConfirmOpen} onOpenChange={onConfirmOpenChange} backdrop="blur">
+                <ModalContent className="rounded-2xl">
+                    {(onClose) => {
+                        const isCat = deleteTarget?.type === "category";
+                        const isCom = deleteTarget?.type === "comment";
+                        
+                        let title = "Suppression de la ressource";
+                        let text = "Voulez-vous vraiment supprimer cette ressource définitivement ?";
+                        let warning = "Cette action est irréversible.";
+
+                        if (isCat) {
+                            title = "Suppression de la catégorie";
+                            text = "Voulez-vous vraiment supprimer cette catégorie ?";
+                            warning = "Attention : La suppression d'une catégorie peut impacter les ressources qui y sont associées.";
+                        } else if (isCom) {
+                            title = "Suppression du commentaire";
+                            text = "Voulez-vous vraiment supprimer ce commentaire ?";
+                            warning = "Ce commentaire ainsi que ses éventuelles réponses seront supprimés de manière irréversible.";
+                        }
+
+                        return (
+                            <>
+                                <ModalHeader className="text-[#1B365D] font-bold flex gap-2 items-center">
+                                    <Trash2 size={20} className="text-danger" />
+                                    {title}
+                                </ModalHeader>
+                                <ModalBody className="text-gray-600">
+                                    <p>{text}</p>
+                                    <p className="text-sm mt-2 text-danger bg-danger-50 p-3 rounded-lg border border-danger-100">
+                                        <strong>Information :</strong> {warning}
+                                    </p>
+                                </ModalBody>
+                                <ModalFooter>
+                                    <Button variant="light" onPress={() => { setDeleteTarget(null); onClose(); }}>
+                                        Annuler
+                                    </Button>
+                                    <Button color="danger" className="font-bold" onPress={confirmDelete}>
+                                        Confirmer la suppression
+                                    </Button>
+                                </ModalFooter>
+                            </>
+                        );
+                    }}
+                </ModalContent>
+            </Modal>
+
         </div>
     );
 }

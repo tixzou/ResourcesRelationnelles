@@ -6,6 +6,8 @@ import { Chip } from "@heroui/chip";
 import { Spinner } from "@heroui/spinner";
 import { Input } from "@heroui/input";
 import { Select, SelectItem } from "@heroui/select";
+// Ajout des imports pour la modale
+import { Modal, ModalContent, ModalHeader, ModalBody, ModalFooter, useDisclosure } from "@heroui/modal";
 import { Ban, CheckCircle, Trash2, Search, Shield, MessageSquare, FileText, UserCircle } from "lucide-react";
 import { addToast } from "@heroui/toast";
 
@@ -13,6 +15,10 @@ export default function AdminUsersManager({ token, currentUserId, role }: { toke
     const [users, setUsers] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
     const [search, setSearch] = useState("");
+
+    // --- ÉTATS POUR LA MODALE DE SUPPRESSION ---
+    const { isOpen, onOpen, onOpenChange, onClose } = useDisclosure();
+    const [userToDelete, setUserToDelete] = useState<number | null>(null);
 
     const isSuperAdmin = role === "SUPER_ADMINISTRATEUR";
 
@@ -37,7 +43,6 @@ export default function AdminUsersManager({ token, currentUserId, role }: { toke
 
     useEffect(() => { if (token) fetchUsers(); }, [token]);
 
-    // Retour de notre filtre robuste !
     const filteredUsers = users.filter((u) => {
         const query = search.toLowerCase();
         return (
@@ -81,17 +86,31 @@ export default function AdminUsersManager({ token, currentUserId, role }: { toke
         } catch (error) { addToast({ title: "Erreur réseau", color: "danger" }); }
     };
 
-    const handleDelete = async (id: number) => {
-        if (!confirm("Voulez-vous vraiment supprimer cet utilisateur définitivement ?")) return;
+    // 1. Ouvre la modale et stocke l'ID
+    const handleOpenDeleteModal = (id: number) => {
+        setUserToDelete(id);
+        onOpen();
+    };
+
+    // 2. Fonction qui exécute réellement la suppression après confirmation
+    const confirmDelete = async () => {
+        if (!userToDelete) return;
         try {
-            const res = await fetch(`http://localhost:3001/admin/users/${id}`, {
+            const res = await fetch(`http://localhost:3001/admin/users/${userToDelete}`, {
                 method: "DELETE", headers: { Authorization: `Bearer ${token}` }
             });
             if (res.ok) {
-                setUsers(prev => prev.filter(u => u.id !== id));
+                setUsers(prev => prev.filter(u => u.id !== userToDelete));
                 addToast({ title: "Utilisateur supprimé", color: "success" });
+            } else {
+                addToast({ title: "Erreur lors de la suppression", color: "danger" });
             }
-        } catch (error) { addToast({ title: "Erreur réseau", color: "danger" }); }
+        } catch (error) { 
+            addToast({ title: "Erreur réseau", color: "danger" }); 
+        } finally {
+            setUserToDelete(null); // On nettoie l'état
+            onClose();             // On ferme la modale
+        }
     };
 
     if (loading) return <div className="flex justify-center p-10 w-full"><Spinner size="lg" color="primary" /></div>;
@@ -186,7 +205,15 @@ export default function AdminUsersManager({ token, currentUserId, role }: { toke
                                             >
                                                 {user.isActive ? "Suspendre" : "Réactiver"}
                                             </Button>
-                                            <Button isIconOnly color="danger" size="sm" variant="light" onPress={() => handleDelete(user.id)}><Trash2 size={16} /></Button>
+                                            <Button 
+                                                isIconOnly 
+                                                color="danger" 
+                                                size="sm" 
+                                                variant="light" 
+                                                onPress={() => handleOpenDeleteModal(user.id)}
+                                            >
+                                                <Trash2 size={16} />
+                                            </Button>
                                         </>
                                     )}
                                 </div>
@@ -195,6 +222,34 @@ export default function AdminUsersManager({ token, currentUserId, role }: { toke
                     })
                 )}
             </div>
+
+            {/* --- MODALE DE CONFIRMATION DE SUPPRESSION --- */}
+            <Modal isOpen={isOpen} onOpenChange={onOpenChange} backdrop="blur">
+                <ModalContent className="rounded-2xl">
+                    {(onClose) => (
+                        <>
+                            <ModalHeader className="text-[#1B365D] font-bold flex gap-2 items-center">
+                                <Trash2 size={20} className="text-danger" />
+                                Suppression d'utilisateur
+                            </ModalHeader>
+                            <ModalBody className="text-gray-600">
+                                <p>Voulez-vous vraiment supprimer cet utilisateur définitivement ?</p>
+                                <p className="text-sm mt-2 text-danger bg-danger-50 p-3 rounded-lg border border-danger-100">
+                                    <strong>Attention :</strong> Cette action est irréversible. Toutes ses données (ressources, commentaires, favoris) seront également supprimées.
+                                </p>
+                            </ModalBody>
+                            <ModalFooter>
+                                <Button variant="light" onPress={() => { setUserToDelete(null); onClose(); }}>
+                                    Annuler
+                                </Button>
+                                <Button color="danger" className="font-bold" onPress={confirmDelete}>
+                                    Confirmer la suppression
+                                </Button>
+                            </ModalFooter>
+                        </>
+                    )}
+                </ModalContent>
+            </Modal>
         </div>
     );
 }

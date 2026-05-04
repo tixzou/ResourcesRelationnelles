@@ -1,6 +1,6 @@
 import { Controller, Post, Delete, Body, Param, Request, UseGuards, Get } from '@nestjs/common';
 import { CommentService } from './comment.service';
-import { AuthGuard } from '../auth.guard'; // Vérifie ton chemin d'import
+import { AuthGuard } from '../auth.guard';
 
 @Controller('comment')
 export class CommentController {
@@ -9,13 +9,21 @@ export class CommentController {
   @UseGuards(AuthGuard)
   @Post()
   async create(@Body() data: { content: string; ressourceId: number; parentId?: number }, @Request() req) {
-    console.log("Données reçues :", data); // Ajoute ce log pour vérifier que parentId arrive bien
+    console.log("Données reçues :", data);
     return this.commentService.create({
       ...data,
       authorId: req.user.sub,
     });
   }
 
+  // 👇 NOUVELLE ROUTE : Suppression par un administrateur (À mettre AVANT le @Delete(':id') classique)
+  @UseGuards(AuthGuard)
+  @Delete('admin/:id')
+  async removeByAdmin(@Param('id') id: string) {
+    return this.commentService.removeByAdmin(Number(id));
+  }
+
+  // Route classique de suppression (réservée à l'auteur du commentaire)
   @UseGuards(AuthGuard)
   @Delete(':id')
   async remove(@Param('id') id: string, @Request() req) {
