@@ -16,3 +16,11 @@ describe('CategoryService', () => {
     expect(service).toBeDefined();
   });
 });
+
+/**
+ * Documentation du fichier
+ *
+ * - Role : Test minimal du service categories. Il confirme que CategoryService peut etre instancie.
+ * - Fonctionnement : Il peut etre etendu avec des mocks Prisma pour tester create, update, remove et findAll.
+ * - A retenir : Il ne teste pas encore les erreurs de base de donnees.
+ */

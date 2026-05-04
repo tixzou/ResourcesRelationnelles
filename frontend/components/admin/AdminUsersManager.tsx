@@ -6,7 +6,7 @@ import { Chip } from "@heroui/chip";
 import { Spinner } from "@heroui/spinner";
 import { Input } from "@heroui/input";
 import { Select, SelectItem } from "@heroui/select";
-// Ajout des imports pour la modale
+
 import { Modal, ModalContent, ModalHeader, ModalBody, ModalFooter, useDisclosure } from "@heroui/modal";
 import { Ban, CheckCircle, Trash2, Search, Shield, MessageSquare, FileText, UserCircle } from "lucide-react";
 import { addToast } from "@heroui/toast";
@@ -16,7 +16,6 @@ export default function AdminUsersManager({ token, currentUserId, role }: { toke
     const [loading, setLoading] = useState(true);
     const [search, setSearch] = useState("");
 
-    // --- ÉTATS POUR LA MODALE DE SUPPRESSION ---
     const { isOpen, onOpen, onOpenChange, onClose } = useDisclosure();
     const [userToDelete, setUserToDelete] = useState<number | null>(null);
 
@@ -58,12 +57,12 @@ export default function AdminUsersManager({ token, currentUserId, role }: { toke
                 method: "PATCH",
                 headers: { Authorization: `Bearer ${token}` }
             });
-            
+
             if (res.ok) {
                 setUsers(prev => prev.map(u => u.id === id ? { ...u, isActive: !currentStatus } : u));
-                addToast({ 
-                    title: currentStatus ? "Compte suspendu" : "Compte réactivé", 
-                    color: currentStatus ? "warning" : "success" 
+                addToast({
+                    title: currentStatus ? "Compte suspendu" : "Compte réactivé",
+                    color: currentStatus ? "warning" : "success"
                 });
             }
         } catch (error) { addToast({ title: "Erreur réseau", color: "danger" }); }
@@ -86,13 +85,11 @@ export default function AdminUsersManager({ token, currentUserId, role }: { toke
         } catch (error) { addToast({ title: "Erreur réseau", color: "danger" }); }
     };
 
-    // 1. Ouvre la modale et stocke l'ID
     const handleOpenDeleteModal = (id: number) => {
         setUserToDelete(id);
         onOpen();
     };
 
-    // 2. Fonction qui exécute réellement la suppression après confirmation
     const confirmDelete = async () => {
         if (!userToDelete) return;
         try {
@@ -105,11 +102,11 @@ export default function AdminUsersManager({ token, currentUserId, role }: { toke
             } else {
                 addToast({ title: "Erreur lors de la suppression", color: "danger" });
             }
-        } catch (error) { 
-            addToast({ title: "Erreur réseau", color: "danger" }); 
+        } catch (error) {
+            addToast({ title: "Erreur réseau", color: "danger" });
         } finally {
-            setUserToDelete(null); // On nettoie l'état
-            onClose();             // On ferme la modale
+            setUserToDelete(null);
+            onClose();
         }
     };
 
@@ -147,7 +144,7 @@ export default function AdminUsersManager({ token, currentUserId, role }: { toke
 
                         return (
                             <div key={user.id} className={`grid grid-cols-1 lg:grid-cols-12 gap-4 items-center p-5 bg-white border rounded-xl shadow-sm transition-all ${!user.isActive ? 'border-orange-200 bg-orange-50/30' : 'border-gray-200 hover:shadow-md'} ${isCurrentUser ? 'border-blue-200 bg-blue-50/30' : ''}`}>
-                                
+
                                 <div className="flex flex-col gap-1 lg:col-span-5">
                                     <div className="flex items-center gap-2">
                                         <h3 className={`font-bold text-base line-clamp-1 ${!user.isActive ? 'text-gray-500' : 'text-[#1B365D]'}`}>
@@ -196,20 +193,20 @@ export default function AdminUsersManager({ token, currentUserId, role }: { toke
                                         </Chip>
                                     ) : (
                                         <>
-                                            <Button 
+                                            <Button
                                                 color={user.isActive ? "warning" : "success"}
                                                 size="sm"
-                                                variant="flat" 
+                                                variant="flat"
                                                 startContent={user.isActive ? <Ban size={16} /> : <CheckCircle size={16} />}
                                                 onPress={() => handleToggleActive(user.id, user.isActive)}
                                             >
                                                 {user.isActive ? "Suspendre" : "Réactiver"}
                                             </Button>
-                                            <Button 
-                                                isIconOnly 
-                                                color="danger" 
-                                                size="sm" 
-                                                variant="light" 
+                                            <Button
+                                                isIconOnly
+                                                color="danger"
+                                                size="sm"
+                                                variant="light"
                                                 onPress={() => handleOpenDeleteModal(user.id)}
                                             >
                                                 <Trash2 size={16} />
@@ -223,7 +220,6 @@ export default function AdminUsersManager({ token, currentUserId, role }: { toke
                 )}
             </div>
 
-            {/* --- MODALE DE CONFIRMATION DE SUPPRESSION --- */}
             <Modal isOpen={isOpen} onOpenChange={onOpenChange} backdrop="blur">
                 <ModalContent className="rounded-2xl">
                     {(onClose) => (
@@ -253,3 +249,11 @@ export default function AdminUsersManager({ token, currentUserId, role }: { toke
         </div>
     );
 }
+
+/**
+ * Documentation du fichier
+ *
+ * - Role : Gestionnaire admin des utilisateurs. Il charge la liste des comptes avec le token administrateur.
+ * - Fonctionnement : Il permet de rechercher, suspendre/reactiver, supprimer et, pour le super administrateur, changer les roles.
+ * - A retenir : Il protege l'utilisateur courant contre certaines actions destructrices depuis l'interface.
+ */

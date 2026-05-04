@@ -16,3 +16,11 @@ import { MessageModule } from './message/message.module';
   providers: [AppService],
 })
 export class AppModule { }
+
+/**
+ * Documentation du fichier
+ *
+ * - Role : Module racine NestJS. Il declare tous les modules fonctionnels de l'API.
+ * - Fonctionnement : Il connecte auth, ressources, utilisateurs, categories, commentaires, statistiques et messages dans une seule application.
+ * - A retenir : Toute nouvelle fonctionnalite backend majeure doit generalement etre importee ici via son module.
+ */

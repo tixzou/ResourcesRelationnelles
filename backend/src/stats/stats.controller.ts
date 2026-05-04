@@ -9,7 +9,7 @@ import { ApiBearerAuth, ApiTags, ApiQuery } from '@nestjs/swagger';
 @ApiTags('admin/stats')
 @ApiBearerAuth()
 @UseGuards(AuthGuard, RolesGuard)
-// 👇 CORRECTION 1 : On autorise l'Admin ET le Super Admin au niveau du contrôleur
+
 @Roles(Role.ADMINISTRATEUR, Role.SUPER_ADMINISTRATEUR)
 @Controller('admin/stats')
 export class StatsController {
@@ -32,9 +32,17 @@ export class StatsController {
     }
 
     @Get('export')
-    // 👇 CORRECTION 2 : On fait pareil ici (ou on peut l'enlever car la règle du haut s'applique à tout)
+
     @Roles(Role.ADMINISTRATEUR, Role.SUPER_ADMINISTRATEUR)
     async exportStats() {
         return this.statsService.getExportData();
     }
 }
+
+/**
+ * Documentation du fichier
+ *
+ * - Role : Controleur des statistiques admin expose sur /admin/stats. Il est protege par AuthGuard, RolesGuard et roles admin/super admin.
+ * - Fonctionnement : Il lit les query params start, end et categoryId puis les convertit avant d'appeler StatsService.
+ * - A retenir : Il expose aussi /admin/stats/export pour recuperer une vue exportable des ressources.
+ */

@@ -5,7 +5,6 @@ import { PrismaService } from '../prisma.service';
 export class RessourceService {
   constructor(private prisma: PrismaService) { }
 
-  // --- CATALOGUE & RECHERCHE ---
   async findAll() {
     return this.prisma.ressource.findMany({
       where: { isPublic: true, isValidated: true },
@@ -20,7 +19,6 @@ export class RessourceService {
   async findOne(id: number, userId?: number) {
     if (!id || isNaN(id)) return null;
 
-    // Log de vue (optionnel)
     try {
       await this.prisma.viewLog.create({ data: { ressourceId: id } });
     } catch (e) { }
@@ -52,7 +50,6 @@ export class RessourceService {
     };
   }
 
-  // --- ACTIONS CITOYEN ---
   async create(createRessourceDto: any, authorId: number) {
     return this.prisma.ressource.create({
       data: {
@@ -73,7 +70,6 @@ export class RessourceService {
     });
   }
 
-  // 👇 NOUVELLE MÉTHODE : Modification par l'utilisateur
   async update(id: number, authorId: number, updateData: any) {
     const ressource = await this.prisma.ressource.findUnique({ where: { id } });
     if (!ressource || ressource.authorId !== authorId) {
@@ -87,12 +83,11 @@ export class RessourceService {
         content: updateData.content,
         type: updateData.type,
         categoryId: updateData.categoryId ? Number(updateData.categoryId) : null,
-        isValidated: false, // La ressource repasse en attente de validation après édition
+        isValidated: false,
       },
     });
   }
 
-  // 👇 NOUVELLE MÉTHODE : Suppression par l'utilisateur
   async remove(id: number, authorId: number) {
     const ressource = await this.prisma.ressource.findUnique({ where: { id } });
     if (!ressource || ressource.authorId !== authorId) {
@@ -155,7 +150,6 @@ export class RessourceService {
     };
   }
 
-  // 👇 NOUVELLE MÉTHODE : Récupérer les favoris de l'utilisateur
   async findMyFavorites(userId: number) {
     const favorites = await this.prisma.favorite.findMany({
       where: { userId },
@@ -170,14 +164,12 @@ export class RessourceService {
       orderBy: { createdAt: 'desc' }
     });
 
-    // On extrait la ressource de l'objet favorite pour renvoyer un tableau propre
     return favorites.map(fav => ({
       ...fav.ressource,
-      isFavorited: true // Par définition, elles sont toutes en favori ici
+      isFavorited: true
     }));
   }
 
-  // --- ADMINISTRATION ---
   async findAllAdmin() {
     return this.prisma.ressource.findMany({
       include: { author: true, category: true },
@@ -201,3 +193,11 @@ export class RessourceService {
     return this.prisma.ressource.delete({ where: { id } });
   }
 }
+
+/**
+ * Documentation du fichier
+ *
+ * - Role : Service metier principal du catalogue. Il gere lecture publique, detail, vues, favoris, sauvegardes, progression, participation et administration.
+ * - Fonctionnement : Il verifie que seul l'auteur peut modifier ou supprimer sa propre ressource cote citoyen.
+ * - A retenir : Il fournit aussi les methodes admin pour valider, suspendre, editer ou supprimer toutes les ressources.
+ */

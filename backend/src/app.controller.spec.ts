@@ -20,3 +20,11 @@ describe('AppController', () => {
     });
   });
 });
+
+/**
+ * Documentation du fichier
+ *
+ * - Role : Test unitaire du controleur racine. Il cree un module de test avec AppController et AppService.
+ * - Fonctionnement : Il verifie que la route racine renvoie la chaine attendue.
+ * - A retenir : C'est un test de squelette NestJS utile comme exemple minimal.
+ */

@@ -28,7 +28,6 @@ export class AuthGuard implements CanActivate {
         secret: this.configService.get<string>('JWT_SECRET'),
       });
 
-      
       request['user'] = payload;
     } catch {
       throw new UnauthorizedException('Token invalide ou expiré');
@@ -41,3 +40,11 @@ export class AuthGuard implements CanActivate {
     return type === 'Bearer' ? token : undefined;
   }
 }
+
+/**
+ * Documentation du fichier
+ *
+ * - Role : Guard NestJS qui protege les routes connectees. Il extrait le bearer token de l'en-tete Authorization.
+ * - Fonctionnement : Il verifie le JWT avec JwtService et JWT_SECRET, puis place le payload dans request.user.
+ * - A retenir : Si le token manque, est invalide ou expire, il bloque la requete avec UnauthorizedException.
+ */

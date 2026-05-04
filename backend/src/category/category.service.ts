@@ -17,7 +17,7 @@ export class CategoryService {
 
   findAll() {
     return this.prisma.category.findMany({
-      orderBy: { name: 'asc' } 
+      orderBy: { name: 'asc' }
     });
   }
 
@@ -42,3 +42,11 @@ export class CategoryService {
     });
   }
 }
+
+/**
+ * Documentation du fichier
+ *
+ * - Role : Service CRUD des categories. Il cree une categorie, liste toutes les categories par nom ascendant, recupere, modifie et supprime.
+ * - Fonctionnement : Il encapsule les appels Prisma pour eviter de mettre la logique SQL dans le controleur.
+ * - A retenir : Il est utilise par le frontend pour les filtres et par l'admin pour organiser le catalogue.
+ */

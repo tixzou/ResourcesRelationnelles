@@ -6,7 +6,7 @@ export class StatsService {
     constructor(private prisma: PrismaService) { }
 
     async getDashboardData(filters: { start?: Date; end?: Date; categoryId?: number }) {
-        // CORRECTION DATES : On pousse la date de fin à 23:59:59 pour inclure toute la journée
+
         let endOfDay = filters.end;
         if (endOfDay) {
             endOfDay = new Date(endOfDay);
@@ -19,7 +19,7 @@ export class StatsService {
         } : undefined;
 
         const [creations, exploitations, consultations, connexions, commentaires] = await Promise.all([
-            // 1. Créations
+
             this.prisma.ressource.count({
                 where: {
                     ...(dateFilter && { createdAt: dateFilter }),
@@ -27,7 +27,6 @@ export class StatsService {
                 },
             }),
 
-            // 2. Exploitations (Favoris)
             this.prisma.favorite.count({
                 where: {
                     ...(dateFilter && { createdAt: dateFilter }),
@@ -35,7 +34,6 @@ export class StatsService {
                 },
             }),
 
-            // 3. Consultations
             this.prisma.viewLog.count({
                 where: {
                     ...(dateFilter && { createdAt: dateFilter }),
@@ -43,14 +41,12 @@ export class StatsService {
                 },
             }),
 
-            // 4. Connexions (sans filtre de catégorie car c'est global à l'app)
             this.prisma.connectionLog.count({
                 where: {
                     ...(dateFilter && { createdAt: dateFilter }),
                 },
             }),
 
-            // 5. NOUVEAU : Commentaires
             this.prisma.comment.count({
                 where: {
                     ...(dateFilter && { createdAt: dateFilter }),
@@ -68,9 +64,9 @@ export class StatsService {
                 category: true,
                 _count: {
                     select: {
-                        viewLogs: true,   // Consultations
-                        favoritedBy: true, // Exploitations
-                        comments: true     // 👈 NOUVEAU : Commentaires
+                        viewLogs: true,
+                        favoritedBy: true,
+                        comments: true
                     }
                 }
             }
@@ -82,9 +78,17 @@ export class StatsService {
             Categorie: r.category?.name || 'Sans catégorie',
             Consultations: r._count.viewLogs,
             Exploitations: r._count.favoritedBy,
-            Commentaires: r._count.comments, // 👈 Ajouté au CSV
+            Commentaires: r._count.comments,
             Date_Creation: r.createdAt.toLocaleDateString(),
             Status: r.isValidated ? 'Validée' : 'En attente'
         }));
     }
 }
+
+/**
+ * Documentation du fichier
+ *
+ * - Role : Service des statistiques admin. Il compte les creations, exploitations, consultations, connexions et commentaires.
+ * - Fonctionnement : Il applique les filtres de date et de categorie, avec une date de fin etendue jusqu'a la fin de journee.
+ * - A retenir : Il prepare aussi des donnees exportables par ressource avec categorie, compteurs et statut.
+ */

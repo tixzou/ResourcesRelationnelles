@@ -25,3 +25,11 @@ describe('CategoryController', () => {
     expect(controller).toBeDefined();
   });
 });
+
+/**
+ * Documentation du fichier
+ *
+ * - Role : Test minimal du controleur categories. Il verifie que CategoryController est instancie.
+ * - Fonctionnement : Il peut etre complete avec des tests de droits admin et de liste publique.
+ * - A retenir : Il sert surtout de squelette de test actuellement.
+ */

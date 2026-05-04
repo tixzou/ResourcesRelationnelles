@@ -6,19 +6,17 @@ import { Role } from '@prisma/client';
 export class UserService {
   constructor(private prisma: PrismaService) { }
 
-  // Liste pour l'admin (avec plus d'infos)
   async findAllAdmin() {
     return this.prisma.user.findMany({
       orderBy: { createdAt: 'desc' },
       include: {
         _count: {
-          select: { ressources: true, comments: true } // Stats par utilisateur
+          select: { ressources: true, comments: true }
         }
       }
     });
   }
 
-  // Changer le rôle d'un utilisateur
   async updateRole(id: number, newRole: Role) {
     const user = await this.prisma.user.findUnique({ where: { id } });
     if (!user) throw new NotFoundException("Utilisateur non trouvé");
@@ -29,7 +27,6 @@ export class UserService {
     });
   }
 
-  // Supprimer un utilisateur
   async remove(id: number) {
     try {
       return await this.prisma.user.delete({ where: { id } });
@@ -48,3 +45,11 @@ export class UserService {
     });
   }
 }
+
+/**
+ * Documentation du fichier
+ *
+ * - Role : Service metier des utilisateurs. Il liste les comptes avec compteurs de ressources/commentaires pour l'administration.
+ * - Fonctionnement : Il permet de changer le role, supprimer un utilisateur et inverser son etat actif/suspendu.
+ * - A retenir : Les erreurs Prisma sont converties en exceptions Nest quand l'utilisateur n'existe pas ou ne peut pas etre supprime.
+ */

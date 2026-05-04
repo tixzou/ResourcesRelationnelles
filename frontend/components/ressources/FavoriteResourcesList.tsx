@@ -37,11 +37,11 @@ export default function FavoriteResourcesList({ token }: { token: string }) {
     const handleRemoveFavorite = async (id: number) => {
         try {
             const res = await fetch(`http://localhost:3001/ressource/${id}/favorite`, {
-                method: "POST", // Ta route toggleFavorite est en POST
+                method: "POST",
                 headers: { Authorization: `Bearer ${token}` }
             });
             if (res.ok) {
-                // On met à jour l'UI en retirant l'élément de la liste
+
                 setFavorites(prev => prev.filter(r => r.id !== id));
                 addToast({ title: "Retiré des favoris", color: "default", variant: "flat" });
             }
@@ -76,19 +76,19 @@ export default function FavoriteResourcesList({ token }: { token: string }) {
                             </div>
                         </div>
                         <div className="flex items-center gap-2 shrink-0">
-                            <Button 
-                                isIconOnly 
-                                variant="light" 
+                            <Button
+                                isIconOnly
+                                variant="light"
                                 color="danger"
                                 onPress={() => handleRemoveFavorite(r.id)}
                                 title="Retirer des favoris"
                             >
                                 <Heart size={20} className="fill-current" />
                             </Button>
-                            <Button 
-                                as={Link} 
-                                href={`/ressources/${r.id}`} 
-                                color="primary" 
+                            <Button
+                                as={Link}
+                                href={`/ressources/${r.id}`}
+                                color="primary"
                                 variant="flat"
                                 endContent={<ArrowRight size={16} />}
                                 className="font-medium"
@@ -102,3 +102,11 @@ export default function FavoriteResourcesList({ token }: { token: string }) {
         </div>
     );
 }
+
+/**
+ * Documentation du fichier
+ *
+ * - Role : Liste des favoris de l'utilisateur connecte. Elle charge /ressource/favorites/me avec le token.
+ * - Fonctionnement : Elle affiche les ressources favorites et permet de retirer un favori en appelant /ressource/:id/favorite.
+ * - A retenir : Elle garde l'etat local synchronise en retirant immediatement la carte apres succes.
+ */

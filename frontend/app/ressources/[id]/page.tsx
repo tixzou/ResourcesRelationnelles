@@ -4,7 +4,6 @@ import { useEffect, useState, useCallback } from "react";
 import { useParams } from "next/navigation";
 import { useSession } from "next-auth/react";
 
-// Composants HeroUI
 import { Card, CardBody } from "@heroui/card";
 import { Divider } from "@heroui/divider";
 import { Button } from "@heroui/button";
@@ -15,7 +14,6 @@ import { Spinner } from "@heroui/spinner";
 import { Modal, ModalContent, ModalHeader, ModalBody, ModalFooter, useDisclosure } from "@heroui/modal";
 import { Dropdown, DropdownTrigger, DropdownMenu, DropdownItem } from "@heroui/dropdown";
 
-// Icônes
 import { Calendar, MessageSquare, ArrowLeft, Reply, Trash2, MoreHorizontal, Heart } from "lucide-react";
 import Link from "next/link";
 import { addToast } from "@heroui/toast";
@@ -59,10 +57,8 @@ export default function RessourceDetail() {
   const handleToggleFavorite = async () => {
     if (!session || !token) return;
 
-    // Sauvegarde de l'ancien état au cas où l'API échoue
     const previousState = ressource.isFavorited;
 
-    // 1. Mise à jour UI IMMEDIATE (Optimiste)
     setRessource((prev: any) => ({
       ...prev,
       isFavorited: !previousState
@@ -84,7 +80,7 @@ export default function RessourceDetail() {
         throw new Error();
       }
     } catch (error) {
-      // 2. Rollback si erreur API
+
       setRessource((prev: any) => ({ ...prev, isFavorited: previousState }));
       addToast({ title: "Erreur lors de la mise à jour", color: "danger" });
     }
@@ -127,7 +123,6 @@ export default function RessourceDetail() {
   if (loading) return <div className="flex justify-center p-24"><Spinner size="lg" /></div>;
   if (!ressource) return <div className="text-center p-24"><p>Ressource introuvable.</p></div>;
 
-  // On récupère uniquement les commentaires de premier niveau
   const rootComments = ressource.comments?.filter((c: any) => !c.parentId) || [];
 
   return (
@@ -137,7 +132,7 @@ export default function RessourceDetail() {
           <Button as={Link} href="/ressources" variant="light" startContent={<ArrowLeft size={18} />} className="text-white/70 hover:text-white mb-6 p-0 h-auto font-medium">
             Retour au catalogue
           </Button>
-          
+
           <div className="flex justify-between items-center mb-3">
             <h1 className="text-4xl font-bold tracking-tight text-left">{ressource.title}</h1>
             {session && (
@@ -155,7 +150,7 @@ export default function RessourceDetail() {
               </Button>
             )}
           </div>
-          
+
           <div className="flex items-center gap-2 text-blue-100/60 text-sm">
             <span>Par {ressource.author?.firstName} {ressource.author?.lastName}</span>
             <span>•</span>
@@ -177,7 +172,6 @@ export default function RessourceDetail() {
             </CardBody>
           </Card>
 
-          {/* Section Discussion */}
           <section className="space-y-8">
             <h2 className="text-2xl font-bold text-[#1B365D] flex items-center gap-2">
               <MessageSquare size={22} className="text-blue-500" /> Discussion
@@ -203,7 +197,7 @@ export default function RessourceDetail() {
             <div className="space-y-8">
               {rootComments.map((root: any) => {
                 const isMyComment = session && Number((session as any).user?.id) === Number(root.authorId);
-                
+
                 return (
                   <div key={root.id} className="space-y-4">
                     <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100 text-left">
@@ -228,14 +222,13 @@ export default function RessourceDetail() {
                           </Dropdown>
                         )}
                       </div>
-                      
+
                       <p className="text-[15px] text-gray-700 leading-normal mb-5">{root.content}</p>
-                      
+
                       <Button size="sm" variant="light" startContent={<Reply size={14} />} className="text-gray-500 font-bold hover:text-blue-600 px-0 h-auto" onPress={() => setReplyToId(replyToId === root.id ? null : root.id)}>
                         Répondre
                       </Button>
-                      
-                      {/* Formulaire de réponse */}
+
                       {replyToId === root.id && (
                         <div className="mt-5 pt-5 border-t border-gray-50 space-y-3">
                           <Textarea autoFocus variant="bordered" placeholder={`Répondre à ${root.author?.firstName}...`} value={replyInput} onValueChange={setReplyInput} />
@@ -246,12 +239,11 @@ export default function RessourceDetail() {
                         </div>
                       )}
 
-                      {/* --- AFFICHAGE DES RÉPONSES (COMMENTAIRES ENFANTS) --- */}
                       {ressource.comments
                         ?.filter((c: any) => c.parentId === root.id)
                         .map((reply: any) => {
                           const isMyReply = session && Number((session as any).user?.id) === Number(reply.authorId);
-                          
+
                           return (
                             <div key={reply.id} className="mt-4 ml-6 sm:ml-10 p-4 bg-gray-50 rounded-xl border border-gray-100">
                               <div className="flex justify-between items-start mb-3">
@@ -262,7 +254,7 @@ export default function RessourceDetail() {
                                     <p className="text-[10px] text-gray-400 font-medium uppercase tracking-tighter">{new Date(reply.createdAt).toLocaleDateString()}</p>
                                   </div>
                                 </div>
-                                
+
                                 {isMyReply && (
                                   <Dropdown placement="bottom-end">
                                     <DropdownTrigger>
@@ -282,7 +274,6 @@ export default function RessourceDetail() {
                             </div>
                           );
                       })}
-                      {/* --- FIN AFFICHAGE DES RÉPONSES --- */}
 
                     </div>
                   </div>
@@ -333,3 +324,11 @@ export default function RessourceDetail() {
     </div>
   );
 }
+
+/**
+ * Documentation du fichier
+ *
+ * - Role : Page detail d'une ressource. Elle recupere l'id dans l'URL, charge les donnees de la ressource et envoie le token si l'utilisateur est connecte.
+ * - Fonctionnement : Elle gere les interactions principales : ajout de commentaire, reponse a un commentaire, suppression par l'auteur et ajout/retrait des favoris.
+ * - A retenir : Elle separe l'affichage en contenu principal, discussion et panneau d'informations avec auteur, categorie et date.
+ */

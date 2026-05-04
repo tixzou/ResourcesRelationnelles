@@ -17,11 +17,9 @@ export default function AdminRessourcesManager({ token, role }: { token: string,
     const [loading, setLoading] = useState(true);
     const [selectedTab, setSelectedTab] = useState("pending");
 
-    // Filtres
     const [search, setSearch] = useState("");
     const [categoryFilter, setCategoryFilter] = useState("");
 
-    // --- ÉTATS MODALE RESSOURCE ---
     const { isOpen: isResOpen, onOpen: onResOpen, onOpenChange: onResOpenChange, onClose: onResClose } = useDisclosure();
     const [editingId, setEditingId] = useState<number | null>(null);
     const [formTitle, setFormTitle] = useState("");
@@ -29,12 +27,10 @@ export default function AdminRessourcesManager({ token, role }: { token: string,
     const [formType, setFormType] = useState(new Set(["ARTICLE"]));
     const [formCategoryId, setFormCategoryId] = useState(new Set<string>([]));
 
-    // --- ÉTATS MODALE CATÉGORIE ---
     const { isOpen: isCatOpen, onOpen: onCatOpen, onOpenChange: onCatOpenChange, onClose: onCatClose } = useDisclosure();
     const [editingCatId, setEditingCatId] = useState<number | null>(null);
     const [formCatName, setFormCatName] = useState("");
 
-    // --- ÉTATS MODALE COMMENTAIRES ---
     const { isOpen: isComOpen, onOpen: onComOpen, onOpenChange: onComOpenChange, onClose: onComClose } = useDisclosure();
     const [activeResId, setActiveResId] = useState<number | null>(null);
     const [comments, setComments] = useState<any[]>([]);
@@ -42,11 +38,9 @@ export default function AdminRessourcesManager({ token, role }: { token: string,
     const [replyingToId, setReplyingToId] = useState<number | null>(null);
     const [replyText, setReplyText] = useState("");
 
-    // --- ÉTATS MODALE DE CONFIRMATION UNIFIÉE (SUPPRESSION) ---
     const { isOpen: isConfirmOpen, onOpen: onConfirmOpen, onOpenChange: onConfirmOpenChange, onClose: onConfirmClose } = useDisclosure();
     const [deleteTarget, setDeleteTarget] = useState<{ type: "ressource" | "category" | "comment", id: number } | null>(null);
 
-    // Droits élevés (Admin / Super Admin)
     const isAdmin = role === "ADMINISTRATEUR" || role === "SUPER_ADMINISTRATEUR";
 
     const fetchData = async () => {
@@ -82,7 +76,6 @@ export default function AdminRessourcesManager({ token, role }: { token: string,
     const pendingRessources = filteredRessources.filter(r => !r.isValidated);
     const validatedRessources = filteredRessources.filter(r => r.isValidated);
 
-    // --- GESTION DE LA MODALE DE SUPPRESSION ---
     const openDeleteModal = (type: "ressource" | "category" | "comment", id: number) => {
         setDeleteTarget({ type, id });
         onConfirmOpen();
@@ -100,7 +93,6 @@ export default function AdminRessourcesManager({ token, role }: { token: string,
         setDeleteTarget(null);
     };
 
-    // --- ACTIONS ---
     const handleAction = async (id: number, action: "validate" | "suspend" | "delete") => {
         const urlMap = {
             validate: `http://localhost:3001/admin/ressources/${id}/validate`,
@@ -111,7 +103,7 @@ export default function AdminRessourcesManager({ token, role }: { token: string,
 
         try {
             const res = await fetch(urlMap[action], { method: methodMap[action], headers: { Authorization: `Bearer ${token}` } });
-            if (res.ok) { addToast({ title: "Action réussie", color: "success" }); fetchData(); } 
+            if (res.ok) { addToast({ title: "Action réussie", color: "success" }); fetchData(); }
             else { addToast({ title: "Erreur", color: "danger" }); }
         } catch (error) { addToast({ title: "Erreur réseau", color: "danger" }); }
     };
@@ -135,10 +127,6 @@ export default function AdminRessourcesManager({ token, role }: { token: string,
             } else { addToast({ title: "Erreur", color: "danger" }); }
         } catch (error) { addToast({ title: "Erreur réseau", color: "danger" }); }
     };
-
-    // =========================================================================
-    // --- GESTION DES COMMENTAIRES ---
-    // =========================================================================
 
     const handleOpenComments = async (resId: number) => {
         setActiveResId(resId);
@@ -186,10 +174,10 @@ export default function AdminRessourcesManager({ token, role }: { token: string,
             const res = await fetch(`http://localhost:3001/comment`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
-                body: JSON.stringify({ 
-                    content: replyText, 
+                body: JSON.stringify({
+                    content: replyText,
                     ressourceId: activeResId,
-                    parentId: parentId 
+                    parentId: parentId
                 })
             });
             if (res.ok) {
@@ -227,17 +215,17 @@ export default function AdminRessourcesManager({ token, role }: { token: string,
                         </Button>
                     </div>
                 </div>
-                
+
                 <p className={`${isRoot ? 'text-sm text-gray-700' : 'text-sm text-gray-600'}`}>{comment.content}</p>
 
                 {replyingToId === comment.id && (
                     <div className="mt-3 flex gap-2">
-                        <Input 
-                            size="sm" 
-                            variant="bordered" 
-                            placeholder="Répondre..." 
-                            value={replyText} 
-                            onValueChange={setReplyText} 
+                        <Input
+                            size="sm"
+                            variant="bordered"
+                            placeholder="Répondre..."
+                            value={replyText}
+                            onValueChange={setReplyText}
                             autoFocus
                         />
                         <Button size="sm" color="primary" className="bg-[#1B365D]" onPress={() => handlePostReply(comment.id)}>
@@ -254,10 +242,6 @@ export default function AdminRessourcesManager({ token, role }: { token: string,
             </div>
         );
     };
-
-    // =========================================================================
-    // --- GESTION DES CATÉGORIES ---
-    // =========================================================================
 
     const handleSaveCat = async () => {
         const url = editingCatId ? `http://localhost:3001/category/${editingCatId}` : `http://localhost:3001/category`;
@@ -288,7 +272,6 @@ export default function AdminRessourcesManager({ token, role }: { token: string,
 
     if (loading) return <div className="flex justify-center p-10 w-full"><Spinner size="lg" color="primary" /></div>;
 
-    // RENDU LIGNE RESSOURCE
     const renderResListItem = (r: any, isPending: boolean) => (
         <div key={r.id} className="flex flex-col md:flex-row items-start md:items-center justify-between p-5 bg-white border border-gray-200 rounded-xl shadow-sm hover:shadow-md transition-all gap-4">
             <div className="flex flex-col gap-1 w-full md:w-2/3">
@@ -307,17 +290,16 @@ export default function AdminRessourcesManager({ token, role }: { token: string,
                     {r.category && <Chip size="sm" variant="dot" color="secondary" className="border-none text-gray-500 text-[10px] h-5">{r.category.name}</Chip>}
                 </div>
             </div>
-            
+
             <div className="flex items-center gap-2 w-full md:w-auto justify-end shrink-0">
-                {/* COMMENTAIRES : Visible par tous */}
+
                 <Button isIconOnly variant="flat" color="primary" size="sm" onPress={() => handleOpenComments(r.id)} title="Commentaires">
                     <MessageSquare size={16} />
                 </Button>
-                
-                {/* ÉDITION : Réservé Admin */}
+
                 {isAdmin && (
                     <Button isIconOnly variant="flat" color="default" size="sm" onPress={() => {
-                        setEditingId(r.id); setFormTitle(r.title); setFormContent(r.content || ""); 
+                        setEditingId(r.id); setFormTitle(r.title); setFormContent(r.content || "");
                         setFormType(new Set([r.type])); setFormCategoryId(new Set([r.categoryId?.toString() || ""]));
                         onResOpen();
                     }}><Edit size={16} /></Button>
@@ -335,7 +317,7 @@ export default function AdminRessourcesManager({ token, role }: { token: string,
                                 Suspendre
                             </Button>
                         )}
-                        
+
                         {isAdmin && (
                             <Button isIconOnly color="danger" size="sm" variant="light" onPress={() => openDeleteModal("ressource", r.id)}><Trash2 size={16} /></Button>
                         )}
@@ -347,7 +329,7 @@ export default function AdminRessourcesManager({ token, role }: { token: string,
 
     return (
         <div className="w-full flex flex-col gap-6">
-            
+
             {selectedTab !== "categories" && (
                 <div className="flex flex-col md:flex-row gap-4 items-center w-full">
                     <Input value={search} onValueChange={setSearch} className="w-full md:flex-1" placeholder="Rechercher..." startContent={<Search size={20} className="text-gray-400" />} variant="bordered" />
@@ -357,7 +339,7 @@ export default function AdminRessourcesManager({ token, role }: { token: string,
                             {categories.map((cat) => (<option key={cat.id} value={cat.name}>{cat.name}</option>))}
                         </select>
                         <Button variant="flat" className="h-10 bg-gray-100" onPress={() => { setSearch(""); setCategoryFilter(""); }}>Reset</Button>
-                        
+
                         {isAdmin && (
                             <Button color="primary" className="h-10 bg-[#1B365D]" startContent={<Plus size={18} />} onPress={() => {
                                 setEditingId(null); setFormTitle(""); setFormContent(""); setFormType(new Set(["ARTICLE"])); setFormCategoryId(new Set([]));
@@ -404,7 +386,6 @@ export default function AdminRessourcesManager({ token, role }: { token: string,
                 )}
             </Tabs>
 
-            {/* MODALE RESSOURCE */}
             <Modal isOpen={isResOpen} onOpenChange={onResOpenChange} size="lg" backdrop="blur">
                 <ModalContent>
                     {(onClose) => (
@@ -431,7 +412,6 @@ export default function AdminRessourcesManager({ token, role }: { token: string,
                 </ModalContent>
             </Modal>
 
-            {/* MODALE CATÉGORIE */}
             <Modal isOpen={isCatOpen} onOpenChange={onCatOpenChange} size="sm" backdrop="blur">
                 <ModalContent>
                     {(onClose) => (
@@ -449,7 +429,6 @@ export default function AdminRessourcesManager({ token, role }: { token: string,
                 </ModalContent>
             </Modal>
 
-            {/* MODALE COMMENTAIRES */}
             <Modal isOpen={isComOpen} onOpenChange={onComOpenChange} size="2xl" scrollBehavior="inside" backdrop="blur">
                 <ModalContent>
                     {(onClose) => (
@@ -468,13 +447,12 @@ export default function AdminRessourcesManager({ token, role }: { token: string,
                 </ModalContent>
             </Modal>
 
-            {/* --- NOUVEAU : MODALE DE CONFIRMATION UNIFIÉE --- */}
             <Modal isOpen={isConfirmOpen} onOpenChange={onConfirmOpenChange} backdrop="blur">
                 <ModalContent className="rounded-2xl">
                     {(onClose) => {
                         const isCat = deleteTarget?.type === "category";
                         const isCom = deleteTarget?.type === "comment";
-                        
+
                         let title = "Suppression de la ressource";
                         let text = "Voulez-vous vraiment supprimer cette ressource définitivement ?";
                         let warning = "Cette action est irréversible.";
@@ -518,3 +496,11 @@ export default function AdminRessourcesManager({ token, role }: { token: string,
         </div>
     );
 }
+
+/**
+ * Documentation du fichier
+ *
+ * - Role : Gestionnaire admin des ressources et categories. Il charge toutes les ressources, filtre par statut/recherche/categorie et gere les actions de moderation.
+ * - Fonctionnement : Il permet valider, suspendre, editer, supprimer les ressources, ainsi que creer/modifier/supprimer des categories.
+ * - A retenir : Il integre aussi la lecture et moderation des commentaires associes aux ressources.
+ */

@@ -16,3 +16,11 @@ describe('MessageService', () => {
     expect(service).toBeDefined();
   });
 });
+
+/**
+ * Documentation du fichier
+ *
+ * - Role : Test minimal du service message. Il verifie que MessageService existe avec un PrismaService mocke.
+ * - Fonctionnement : Il peut etre complete avec des tests d'envoi et de tri chronologique.
+ * - A retenir : Il ne verifie pas encore les relations sender/ressource.
+ */

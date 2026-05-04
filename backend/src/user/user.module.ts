@@ -12,3 +12,11 @@ import { AuthModule } from '../auth.module';
   exports: [UserService],
 })
 export class UserModule { }
+
+/**
+ * Documentation du fichier
+ *
+ * - Role : Module utilisateur. Il regroupe le controleur public, le controleur admin, le service et PrismaService.
+ * - Fonctionnement : Il rend le domaine utilisateur disponible dans l'application Nest.
+ * - A retenir : Les routes admin/users dependent de ce module.
+ */

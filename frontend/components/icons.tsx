@@ -185,3 +185,11 @@ export const SearchIcon = (props: IconSvgProps) => (
     />
   </svg>
 );
+
+/**
+ * Documentation du fichier
+ *
+ * - Role : Bibliotheque d'icones SVG locales. Elle expose le logo et plusieurs icones reutilisables.
+ * - Fonctionnement : Chaque composant accepte des props SVG et souvent une taille configurable.
+ * - A retenir : Ces icones servent aux composants UI sans dependance supplementaire.
+ */

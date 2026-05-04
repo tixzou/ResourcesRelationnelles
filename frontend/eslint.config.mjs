@@ -149,3 +149,11 @@ export default defineConfig([globalIgnores([
         }],
     },
 }]);
+
+/**
+ * Documentation du fichier
+ *
+ * - Role : Configuration ESLint du frontend Next.js.
+ * - Fonctionnement : Elle charge les regles Next, TypeScript, React, accessibilite, imports et Prettier.
+ * - A retenir : Les choix de qualite et de formatage du frontend sont centralises ici.
+ */

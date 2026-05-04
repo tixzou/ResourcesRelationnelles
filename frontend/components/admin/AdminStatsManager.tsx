@@ -6,18 +6,17 @@ import { Button } from "@heroui/button";
 import { Input } from "@heroui/input";
 import { Select, SelectItem } from "@heroui/select";
 import { Spinner } from "@heroui/spinner";
-// 👈 Ajout de MessageSquare pour l'icône des commentaires
+
 import { Download, Eye, PlusCircle, Heart, UserCheck, FilterX, MessageSquare } from "lucide-react";
 import { addToast } from "@heroui/toast";
 
 export default function AdminStatsManager({ token }: { token: string }) {
-    // 👈 Ajout de 'commentaires' dans l'état initial
+
     const [stats, setStats] = useState({ creations: 0, exploitations: 0, consultations: 0, connexions: 0, commentaires: 0 });
     const [categories, setCategories] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
     const [exporting, setExporting] = useState(false);
 
-    // Filtres
     const [startDate, setStartDate] = useState("");
     const [endDate, setEndDate] = useState("");
     const [categoryId, setCategoryId] = useState<Set<string>>(new Set([]));
@@ -35,7 +34,7 @@ export default function AdminStatsManager({ token }: { token: string }) {
             const queryParams = new URLSearchParams();
             if (startDate) queryParams.append("start", startDate);
             if (endDate) queryParams.append("end", endDate);
-            
+
             const selectedCat = Array.from(categoryId)[0];
             if (selectedCat) queryParams.append("categoryId", selectedCat as string);
 
@@ -66,9 +65,9 @@ export default function AdminStatsManager({ token }: { token: string }) {
             const res = await fetch("http://localhost:3001/admin/stats/export", {
                 headers: { Authorization: `Bearer ${token}` }
             });
-            
+
             if (!res.ok) throw new Error("Erreur");
-            
+
             const data = await res.json();
             if (!data || data.length === 0) {
                 addToast({ title: "Aucune donnée à exporter", color: "warning" });
@@ -76,13 +75,12 @@ export default function AdminStatsManager({ token }: { token: string }) {
             }
 
             const headers = Object.keys(data[0]);
-            const csvRows = data.map((row: any) => 
+            const csvRows = data.map((row: any) =>
                 headers.map(fieldName => JSON.stringify(row[fieldName] ?? "")).join(",")
             );
-            
-            // Pour forcer l'UTF-8 avec Excel sur Windows, on ajoute un BOM (\uFEFF)
+
             const csvString = "\uFEFF" + [headers.join(";"), ...csvRows].join("\r\n").replace(/,/g, ";");
-            
+
             const blob = new Blob([csvString], { type: "text/csv;charset=utf-8;" });
             const url = URL.createObjectURL(blob);
             const link = document.createElement("a");
@@ -91,7 +89,7 @@ export default function AdminStatsManager({ token }: { token: string }) {
             document.body.appendChild(link);
             link.click();
             document.body.removeChild(link);
-            
+
             addToast({ title: "Export réussi", color: "success" });
         } catch (error) {
             addToast({ title: "Échec de l'export", color: "danger" });
@@ -108,28 +106,28 @@ export default function AdminStatsManager({ token }: { token: string }) {
 
     return (
         <div className="w-full flex flex-col gap-8">
-            {/* --- BARRE DE FILTRES --- */}
+
             <div className="flex flex-col lg:flex-row gap-4 items-end lg:items-center bg-gray-50 p-5 rounded-2xl border border-gray-100">
                 <div className="flex flex-col sm:flex-row gap-4 w-full lg:flex-1">
-                    <Input 
-                        type="date" 
-                        label="Date de début" 
-                        variant="bordered" 
+                    <Input
+                        type="date"
+                        label="Date de début"
+                        variant="bordered"
                         size="sm"
                         value={startDate}
                         onValueChange={setStartDate}
                     />
-                    <Input 
-                        type="date" 
-                        label="Date de fin" 
-                        variant="bordered" 
+                    <Input
+                        type="date"
+                        label="Date de fin"
+                        variant="bordered"
                         size="sm"
                         value={endDate}
                         onValueChange={setEndDate}
                     />
-                    <Select 
-                        label="Catégorie" 
-                        variant="bordered" 
+                    <Select
+                        label="Catégorie"
+                        variant="bordered"
                         size="sm"
                         selectedKeys={categoryId}
                         onSelectionChange={(keys) => setCategoryId(keys as Set<string>)}
@@ -139,20 +137,20 @@ export default function AdminStatsManager({ token }: { token: string }) {
                         ))}
                     </Select>
                 </div>
-                
+
                 <div className="flex gap-2 w-full sm:w-auto shrink-0">
-                    <Button 
-                        variant="flat" 
-                        color="default" 
+                    <Button
+                        variant="flat"
+                        color="default"
                         className="h-12"
-                        startContent={<FilterX size={18} />} 
+                        startContent={<FilterX size={18} />}
                         onPress={handleResetFilters}
                     >
                         Réinitialiser
                     </Button>
-                    <Button 
-                        color="primary" 
-                        className="bg-[#1B365D] h-12 font-bold" 
+                    <Button
+                        color="primary"
+                        className="bg-[#1B365D] h-12 font-bold"
                         startContent={exporting ? <Spinner size="sm" color="white" /> : <Download size={18} />}
                         onPress={handleExport}
                         isDisabled={exporting}
@@ -162,13 +160,11 @@ export default function AdminStatsManager({ token }: { token: string }) {
                 </div>
             </div>
 
-            {/* --- CARTES DE STATISTIQUES --- */}
             {loading ? (
                 <div className="flex justify-center p-12"><Spinner size="lg" color="primary" /></div>
             ) : (
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-6">
-                    
-                    {/* Consultations */}
+
                     <Card className="border-none shadow-sm bg-blue-50/50">
                         <CardBody className="p-6 flex flex-row items-center gap-4">
                             <div className="p-4 bg-blue-100 text-blue-600 rounded-xl shrink-0">
@@ -181,7 +177,6 @@ export default function AdminStatsManager({ token }: { token: string }) {
                         </CardBody>
                     </Card>
 
-                    {/* Créations */}
                     <Card className="border-none shadow-sm bg-emerald-50/50">
                         <CardBody className="p-6 flex flex-row items-center gap-4">
                             <div className="p-4 bg-emerald-100 text-emerald-600 rounded-xl shrink-0">
@@ -194,7 +189,6 @@ export default function AdminStatsManager({ token }: { token: string }) {
                         </CardBody>
                     </Card>
 
-                    {/* Exploitations (Favoris/Sauvegardes) */}
                     <Card className="border-none shadow-sm bg-rose-50/50">
                         <CardBody className="p-6 flex flex-row items-center gap-4">
                             <div className="p-4 bg-rose-100 text-rose-600 rounded-xl shrink-0">
@@ -207,7 +201,6 @@ export default function AdminStatsManager({ token }: { token: string }) {
                         </CardBody>
                     </Card>
 
-                    {/* 👈 NOUVEAU : Commentaires */}
                     <Card className="border-none shadow-sm bg-amber-50/50">
                         <CardBody className="p-6 flex flex-row items-center gap-4">
                             <div className="p-4 bg-amber-100 text-amber-600 rounded-xl shrink-0">
@@ -220,7 +213,6 @@ export default function AdminStatsManager({ token }: { token: string }) {
                         </CardBody>
                     </Card>
 
-                    {/* Connexions */}
                     <Card className="border-none shadow-sm bg-purple-50/50">
                         <CardBody className="p-6 flex flex-row items-center gap-4">
                             <div className="p-4 bg-purple-100 text-purple-600 rounded-xl shrink-0">
@@ -238,3 +230,11 @@ export default function AdminStatsManager({ token }: { token: string }) {
         </div>
     );
 }
+
+/**
+ * Documentation du fichier
+ *
+ * - Role : Gestionnaire du tableau de bord statistiques. Il charge les categories, applique des filtres et appelle /admin/stats.
+ * - Fonctionnement : Il affiche les compteurs principaux : creations, exploitations, consultations, connexions et commentaires.
+ * - A retenir : Il propose un export des donnees via /admin/stats/export.
+ */

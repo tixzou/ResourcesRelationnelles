@@ -26,7 +26,6 @@ export default function AdminDashboard() {
         return null;
     }
 
-    // On crée une petite variable pour savoir si c'est un Admin ou Super Admin
     const isAdmin = role === "ADMINISTRATEUR" || role === "SUPER_ADMINISTRATEUR";
 
     return (
@@ -57,7 +56,7 @@ export default function AdminDashboard() {
                         tabContent: "group-data-[selected=true]:text-white font-medium text-sm"
                     }}
                 >
-                    {/* ONGLET 1 : Toujours visible (Admin + Modérateur) */}
+
                     <Tab key="ressources" title="Ressources & Catégories">
                         <div className="mt-6 bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
                             <h2 className="text-xl font-bold text-gray-800 mb-2">Gestion du catalogue</h2>
@@ -66,26 +65,23 @@ export default function AdminDashboard() {
                         </div>
                     </Tab>
 
-                    {/* ONGLET 2 : Réservé aux Administrateurs */}
                     {isAdmin && (
                         <Tab key="users" title="Comptes Citoyens">
                             <div className="mt-6 bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
                                 <h2 className="text-xl font-bold text-gray-800 mb-2">Gestion des utilisateurs</h2>
                                 <p className="text-gray-500 mb-6">Consultez la liste des citoyens inscrits et gérez l'activation ou les rôles des comptes.</p>
-                                {/* On ajoute la prop role ici 👇 */}
+
                                 <AdminUsersManager token={(session as any)?.accessToken} currentUserId={currentUserId} role={role} />
                             </div>
                         </Tab>
                     )}
 
-                    {/* ONGLET 3 : Réservé aux Administrateurs */}
                     {isAdmin && (
                         <Tab key="stats" title="Statistiques & Exports">
                             <div className="mt-6 bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
                                 <h2 className="text-xl font-bold text-gray-800 mb-2">Tableau de bord d'activité</h2>
                                 <p className="text-gray-500 mb-6">Suivez l'évolution de la plateforme et exportez vos données.</p>
 
-                                {/* L'appel à notre nouveau composant 👇 */}
                                 <AdminStatsManager token={(session as any)?.accessToken} />
                             </div>
                         </Tab>
@@ -95,3 +91,11 @@ export default function AdminDashboard() {
         </div>
     );
 }
+
+/**
+ * Documentation du fichier
+ *
+ * - Role : Page client du tableau de bord administrateur. Elle lit la session NextAuth, controle le role de l'utilisateur et redirige vers l'accueil si l'acces est refuse.
+ * - Fonctionnement : Elle organise l'administration en onglets : ressources et categories pour les moderateurs, utilisateurs et statistiques pour les administrateurs.
+ * - A retenir : Elle transmet le token JWT aux composants enfants afin qu'ils puissent appeler les routes protegees du backend.
+ */

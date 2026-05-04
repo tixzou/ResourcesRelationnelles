@@ -37,8 +37,16 @@ export default function Footer() {
         <p className="text-tiny text-gray-400 mt-2">
           © {currentYear} (RE)Sources Relationnelles. Tous droits réservés.
         </p>
-        
+
       </div>
     </footer>
   );
 }
+
+/**
+ * Documentation du fichier
+ *
+ * - Role : Footer global de l'application. Il affiche le logo, le nom de marque, des liens institutionnels et l'annee courante.
+ * - Fonctionnement : Il reste present sur toutes les pages via le layout racine.
+ * - A retenir : Les liens CGU, Confidentialite et Contact sont encore des placeholders.
+ */

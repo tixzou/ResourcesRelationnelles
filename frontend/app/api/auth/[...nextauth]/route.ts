@@ -10,7 +10,7 @@ const authOptions: NextAuthOptions = {
         password: { label: "Password", type: "password" }
       },
       async authorize(credentials) {
-        // On appelle ton backend NestJS
+
         const res = await fetch("http://localhost:3001/auth/login", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -22,7 +22,6 @@ const authOptions: NextAuthOptions = {
 
         const data = await res.json();
 
-        // Si ok, on mappe les données pour NextAuth
         if (res.ok && data.user) {
           return {
             id: data.user.id.toString(),
@@ -37,7 +36,7 @@ const authOptions: NextAuthOptions = {
     })
   ],
   callbacks: {
-    // 1. On met les données dans le token JWT de NextAuth
+
     async jwt({ token, user }) {
       if (user) {
         token.accessToken = (user as any).accessToken;
@@ -45,10 +44,10 @@ const authOptions: NextAuthOptions = {
       }
       return token;
     },
-    // 2. On passe le token à la session pour que le Front puisse l'utiliser
+
     async session({ session, token }) {
       if (session.user) {
-        (session.user as any).id = token.sub; // <--- AJOUTE CETTE LIGNE
+        (session.user as any).id = token.sub;
         (session.user as any).role = token.role;
         (session as any).accessToken = token.accessToken;
       }
@@ -60,3 +59,11 @@ const authOptions: NextAuthOptions = {
 
 const handler = NextAuth(authOptions);
 export { handler as GET, handler as POST };
+
+/**
+ * Documentation du fichier
+ *
+ * - Role : Route API NextAuth. Elle configure une authentification par email/mot de passe via CredentialsProvider.
+ * - Fonctionnement : La fonction authorize appelle le backend NestJS sur /auth/login, puis transforme la reponse en utilisateur NextAuth.
+ * - A retenir : Les callbacks copient le token d'acces et le role dans le JWT puis dans la session pour les composants frontend.
+ */

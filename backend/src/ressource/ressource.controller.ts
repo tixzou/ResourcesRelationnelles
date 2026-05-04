@@ -23,7 +23,6 @@ export class RessourceController {
     return this.ressourceService.getProgressionStats(req.user.sub);
   }
 
-  // 👇 NOUVELLE ROUTE : Récupérer les favoris (Bien placée AVANT @Get(':id'))
   @UseGuards(AuthGuard)
   @Get('favorites/me')
   findMyFavorites(@Request() req) {
@@ -48,23 +47,20 @@ export class RessourceController {
     return this.ressourceService.remove(+id, req.user.sub);
   }
 
-  // Attention : toujours garder les routes paramétrées (comme :id) APRES les routes fixes
   @Get(':id')
   findOne(@Param('id') id: string, @Request() req) {
     let userId = undefined;
 
-    // On vérifie si un token a été envoyé dans le header (en gérant la casse potentielle)
     const authHeader = req.headers?.authorization || req.headers?.Authorization;
     if (authHeader && typeof authHeader === 'string' && authHeader.startsWith('Bearer ')) {
       const token = authHeader.split(' ')[1];
       try {
-        // Décodage manuel du payload du JWT (sans avoir besoin du AuthGuard)
+
         const payload = JSON.parse(Buffer.from(token.split('.')[1], 'base64').toString());
-        
-        // Assure-toi d'utiliser la bonne propriété selon ton JWT (sub, userId ou id)
-        userId = payload.sub || payload.userId || payload.id; 
+
+        userId = payload.sub || payload.userId || payload.id;
       } catch (e) {
-        // Si le token est invalide, on l'ignore silencieusement
+
       }
     }
 
@@ -101,3 +97,11 @@ export class RessourceController {
     return this.ressourceService.inviteUser(+id, targetUserId);
   }
 }
+
+/**
+ * Documentation du fichier
+ *
+ * - Role : Controleur des ressources expose sur /ressource. Il regroupe routes publiques, connectees et actions utilisateur.
+ * - Fonctionnement : Il gere le catalogue, le detail, les ressources personnelles, creation, edition, suppression, favoris, sauvegarde, exploitation et participation.
+ * - A retenir : La route detail decode optionnellement un token pour savoir si la ressource est favorite sans exiger une connexion.
+ */

@@ -11,3 +11,11 @@ export default function AboutLayout({
     </section>
   );
 }
+
+/**
+ * Documentation du fichier
+ *
+ * - Role : Layout specifique de la section About. Il centre le contenu enfant dans une section verticale.
+ * - Fonctionnement : Il fournit une structure visuelle simple et reutilisee par plusieurs pages template.
+ * - A retenir : Il n'applique pas de logique metier ni d'appel API.
+ */

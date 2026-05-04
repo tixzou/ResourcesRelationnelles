@@ -51,3 +51,11 @@ export const subtitle = tv({
     fullWidth: true,
   },
 });
+
+/**
+ * Documentation du fichier
+ *
+ * - Role : Primitives de styles typographiques basees sur tailwind-variants. Elles standardisent les classes de titres et sous-titres.
+ * - Fonctionnement : Les variantes permettent de choisir couleur, taille et style de titre de maniere coherente.
+ * - A retenir : Ces helpers evitent de repeter de longues chaines Tailwind dans les pages simples.
+ */

@@ -24,7 +24,6 @@ export default function NavbarComponent() {
     signOut();
   };
 
-  // On utilise "as any" pour contourner l'erreur TypeScript sur session.user
   const userRole = (session?.user as any)?.role;
   const isAdminOrMod = userRole === "ADMINISTRATEUR" || userRole === "MODERATEUR" || userRole === "SUPER_ADMINISTRATEUR";
 
@@ -72,7 +71,6 @@ export default function NavbarComponent() {
           <Link color="foreground" href="/ressources" className="hover:text-[#003E7E]">Ressources</Link>
         </NavbarItem>
 
-        {/* --- LIEN ADMIN --- */}
         {isAdminOrMod && (
           <NavbarItem className="hidden sm:flex">
             <Link href="/administrateur" className="text-[#003E7E] font-bold hover:opacity-80">
@@ -99,7 +97,6 @@ export default function NavbarComponent() {
         </NavbarItem>
       </NavbarContent>
 
-      {/* --- MENU MOBILE --- */}
       <NavbarMenu className="pt-6">
         <NavbarMenuItem>
           <Link color="foreground" className="w-full text-lg py-2" href="/" onPress={() => setIsMenuOpen(false)}>
@@ -108,8 +105,7 @@ export default function NavbarComponent() {
           <Link color="foreground" className="w-full text-lg py-2" href="/ressources" onPress={() => setIsMenuOpen(false)}>
             Ressources
           </Link>
-          
-          {/* LIEN ADMIN MOBILE */}
+
           {isAdminOrMod && (
             <Link className="w-full text-lg py-2 text-[#003E7E] font-bold" href="/administrateur" onPress={() => setIsMenuOpen(false)}>
               Administration
@@ -130,3 +126,11 @@ export default function NavbarComponent() {
     </Navbar>
   );
 }
+
+/**
+ * Documentation du fichier
+ *
+ * - Role : Barre de navigation globale. Elle gere le menu mobile, l'affichage connecte/deconnecte et la deconnexion NextAuth.
+ * - Fonctionnement : Elle affiche un acces administration si le role est moderateur, administrateur ou super administrateur.
+ * - A retenir : Elle integre AuthModal pour ouvrir les formulaires de connexion et inscription.
+ */

@@ -79,3 +79,11 @@ export const ThemeSwitch: FC<ThemeSwitchProps> = ({
     </Component>
   );
 };
+
+/**
+ * Documentation du fichier
+ *
+ * - Role : Composant client de changement de theme issu du template. Il utilise next-themes et des icones soleil/lune.
+ * - Fonctionnement : Il affiche un switch accessible permettant de basculer entre themes si le provider l'autorise.
+ * - A retenir : Dans ce projet, le theme est force en clair dans Providers, donc le switch a un effet limite.
+ */

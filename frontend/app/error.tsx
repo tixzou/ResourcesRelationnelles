@@ -10,8 +10,7 @@ export default function Error({
   reset: () => void;
 }) {
   useEffect(() => {
-    // Log the error to an error reporting service
-    /* eslint-disable no-console */
+
     console.error(error);
   }, [error]);
 
@@ -20,7 +19,7 @@ export default function Error({
       <h2>Something went wrong!</h2>
       <button
         onClick={
-          // Attempt to recover by trying to re-render the segment
+
           () => reset()
         }
       >
@@ -29,3 +28,11 @@ export default function Error({
     </div>
   );
 }
+
+/**
+ * Documentation du fichier
+ *
+ * - Role : Boundary d'erreur client pour Next.js. Elle recoit l'erreur du segment et une fonction reset.
+ * - Fonctionnement : Elle journalise l'erreur en console puis affiche un bouton permettant de tenter un nouveau rendu.
+ * - A retenir : Elle protege l'utilisateur contre un ecran blanc en cas d'exception React.
+ */

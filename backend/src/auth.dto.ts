@@ -21,7 +21,6 @@ export class RegisterDto {
   lastName: string;
 }
 
-// Règle pour la connexion
 export class LoginDto {
   @ApiProperty({ example: 'cesi@exemple.com' })
   @IsEmail({}, { message: 'Veuillez fournir une adresse email valide.' })
@@ -33,3 +32,11 @@ export class LoginDto {
   @IsNotEmpty({ message: 'Le mot de passe est requis.' })
   password: string;
 }
+
+/**
+ * Documentation du fichier
+ *
+ * - Role : DTO d'authentification. Il definit les donnees attendues pour l'inscription et la connexion.
+ * - Fonctionnement : Les decorateurs class-validator imposent un email valide, des champs obligatoires et une longueur minimale de mot de passe.
+ * - A retenir : Ces DTO ameliorent la validation d'entree et la documentation Swagger.
+ */

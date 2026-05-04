@@ -11,3 +11,11 @@ import { AdminRessourceController } from './admin-ressource.controller';
   providers: [RessourceService, PrismaService],
 })
 export class RessourceModule { }
+
+/**
+ * Documentation du fichier
+ *
+ * - Role : Module ressources. Il declare le controleur public, le controleur admin, le service et PrismaService.
+ * - Fonctionnement : Il active les routes /ressource et /admin/ressources.
+ * - A retenir : Il est l'un des modules metier majeurs de l'API.
+ */

@@ -20,3 +20,11 @@ export class AdminCommentController {
         return this.commentService.removeByAdmin(+id);
     }
 }
+
+/**
+ * Documentation du fichier
+ *
+ * - Role : Controleur de moderation des commentaires expose sur /admin/comments. Il protege l'acces avec AuthGuard et RolesGuard.
+ * - Fonctionnement : Il autorise les moderateurs et administrateurs a supprimer des commentaires sans etre l'auteur.
+ * - A retenir : Il utilise CommentService pour centraliser la suppression et la verification d'existence.
+ */

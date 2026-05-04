@@ -20,3 +20,11 @@ describe('UserService', () => {
     expect(service).toBeDefined();
   });
 });
+
+/**
+ * Documentation du fichier
+ *
+ * - Role : Test unitaire minimal du service utilisateur. Il instancie UserService avec un PrismaService mocke.
+ * - Fonctionnement : Il verifie uniquement que le service est defini.
+ * - A retenir : Il peut etre complete avec des tests de changement de role, suspension et suppression.
+ */

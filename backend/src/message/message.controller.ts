@@ -7,8 +7,6 @@ import { AuthGuard } from '../auth.guard';
 export class MessageController {
   constructor(private readonly messageService: MessageService) {}
 
-  // POST /message/activity/:ressourceId
-  // Envoie un message dans le contexte d'une activité/ressource
   @Post('activity/:ressourceId')
   async sendMessage(
     @Request() req,
@@ -16,16 +14,22 @@ export class MessageController {
     @Body() body: { content: string }
   ) {
     return this.messageService.sendMessageToActivity(
-      req.user.sub, 
-      Number(ressourceId), 
+      req.user.sub,
+      Number(ressourceId),
       body.content
     );
   }
 
-  // GET /message/activity/:ressourceId
-  // Récupère le fil de discussion complet d'une ressource
   @Get('activity/:ressourceId')
   async getActivityMessages(@Param('ressourceId') ressourceId: string) {
     return this.messageService.getActivityMessages(Number(ressourceId));
   }
 }
+
+/**
+ * Documentation du fichier
+ *
+ * - Role : Controleur du chat d'activite expose sur /message. Toutes ses routes sont protegees par AuthGuard.
+ * - Fonctionnement : Il permet d'envoyer un message dans une ressource et de lire l'historique d'une ressource.
+ * - A retenir : Il transmet l'id utilisateur issu du JWT au service pour identifier l'expediteur.
+ */

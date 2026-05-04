@@ -15,3 +15,11 @@ export class RolesGuard implements CanActivate {
         return requiredRoles.includes(user.role);
     }
 }
+
+/**
+ * Documentation du fichier
+ *
+ * - Role : Guard de roles NestJS. Il lit les roles requis avec Reflector sur la route et le controleur.
+ * - Fonctionnement : Il compare ces roles avec request.user.role, ajoute par AuthGuard.
+ * - A retenir : Il doit etre utilise apres AuthGuard pour que l'utilisateur soit disponible dans la requete.
+ */

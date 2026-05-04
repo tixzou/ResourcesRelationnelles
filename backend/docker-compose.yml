@@ -10,3 +10,9 @@ services:
       POSTGRES_DB: db_ressources
     ports:
       - "5433:5432"
+
+# Documentation du fichier
+#
+# - Role : Definit le service PostgreSQL local utilise par le backend.
+# - Fonctionnement : Docker demarre un conteneur postgres:15 avec la base db_ressources exposee sur localhost:5433.
+# - A retenir : L'URL DATABASE_URL du backend doit pointer vers ce port et ces identifiants en developpement.

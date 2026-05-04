@@ -15,7 +15,7 @@ import { Input, Textarea } from "@heroui/input";
 import { Select, SelectItem } from "@heroui/select";
 import { Chip } from "@heroui/chip";
 import { Spinner } from "@heroui/spinner";
-import { Tabs, Tab } from "@heroui/tabs"; // Nouvel import
+import { Tabs, Tab } from "@heroui/tabs";
 import { Trash2, Edit, Plus, Info, BookOpen, Heart } from "lucide-react";
 import { addToast } from "@heroui/toast";
 import FavoriteResourcesList from "./FavoriteResourcesList";
@@ -106,10 +106,10 @@ export default function MyResourcesManager({ token, search, category }: MyRessou
             });
 
             if (res.ok) {
-                addToast({ 
-                    title: "Succès", 
-                    description: editingId ? "Modifications soumises." : "Ressource créée !", 
-                    color: "success" 
+                addToast({
+                    title: "Succès",
+                    description: editingId ? "Modifications soumises." : "Ressource créée !",
+                    color: "success"
                 });
                 onClose();
                 fetchData();
@@ -138,9 +138,9 @@ export default function MyResourcesManager({ token, search, category }: MyRessou
     return (
         <div className="flex flex-col gap-6 w-full">
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 w-full">
-                <Tabs 
-                    aria-label="Options" 
-                    color="primary" 
+                <Tabs
+                    aria-label="Options"
+                    color="primary"
                     variant="underlined"
                     selectedKey={selectedTab}
                     onSelectionChange={(key) => setSelectedTab(key as string)}
@@ -193,9 +193,9 @@ export default function MyResourcesManager({ token, search, category }: MyRessou
                                             <div className="flex flex-wrap items-center gap-2">
                                                 <Chip size="sm" variant="flat" color="primary">{r.type}</Chip>
                                                 {r.category && <Chip size="sm" color="secondary" variant="flat">{r.category.name}</Chip>}
-                                                <Chip 
-                                                    size="sm" 
-                                                    color={r.isValidated ? "success" : "warning"} 
+                                                <Chip
+                                                    size="sm"
+                                                    color={r.isValidated ? "success" : "warning"}
                                                     variant="flat"
                                                 >
                                                     {r.isValidated ? "Approuvée" : "En attente"}
@@ -220,7 +220,6 @@ export default function MyResourcesManager({ token, search, category }: MyRessou
                 )}
             </div>
 
-            {/* MODAL (inchangé mais présent pour la cohérence) */}
             <Modal isOpen={isOpen} onOpenChange={onOpenChange} placement="center" backdrop="blur" size="lg">
                 <ModalContent>
                     {(onClose) => (
@@ -263,3 +262,11 @@ export default function MyResourcesManager({ token, search, category }: MyRessou
         </div>
     );
 }
+
+/**
+ * Documentation du fichier
+ *
+ * - Role : Gestionnaire des ressources de l'utilisateur connecte. Il charge ses ressources et les categories depuis le backend.
+ * - Fonctionnement : Il permet de creer, editer et supprimer une ressource personnelle avec formulaire local.
+ * - A retenir : Lors d'une edition, la ressource repasse cote backend en attente de validation.
+ */

@@ -11,3 +11,11 @@ import { AdminCommentController } from './admin-comment.controller';
   providers: [CommentService, PrismaService],
 })
 export class CommentModule { }
+
+/**
+ * Documentation du fichier
+ *
+ * - Role : Module commentaires. Il declare les controleurs commentaire et moderation, le service et PrismaService.
+ * - Fonctionnement : Il isole les routes de discussion autour des ressources.
+ * - A retenir : Il est importe par AppModule pour activer les endpoints /comment et /admin/comments.
+ */

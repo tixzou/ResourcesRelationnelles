@@ -18,3 +18,11 @@ describe('MessageController', () => {
     expect(controller).toBeDefined();
   });
 });
+
+/**
+ * Documentation du fichier
+ *
+ * - Role : Test minimal du controleur message. Il confirme l'instanciation du controleur.
+ * - Fonctionnement : Il peut etre etendu pour tester les routes activity/:ressourceId.
+ * - A retenir : Les cas de token manquant ou invalide seraient aussi importants.
+ */

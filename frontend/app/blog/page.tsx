@@ -7,3 +7,11 @@ export default function BlogPage() {
     </div>
   );
 }
+
+/**
+ * Documentation du fichier
+ *
+ * - Role : Page Blog minimale issue du template. Elle affiche un titre via la primitive title.
+ * - Fonctionnement : Elle ne contient pas encore de liste d'articles ni d'appel backend.
+ * - A retenir : Elle peut etre supprimee ou transformee selon le besoin produit.
+ */

@@ -27,11 +27,11 @@ export function Providers({ children, themeProps }: ProvidersProps) {
   return (
     <HeroUIProvider navigate={router.push}>
       <SessionProvider>
-        {/* On force le mode light ici 👇 */}
-        <NextThemesProvider 
-          {...themeProps} 
-          attribute="class" 
-          defaultTheme="light" 
+
+        <NextThemesProvider
+          {...themeProps}
+          attribute="class"
+          defaultTheme="light"
           forcedTheme="light"
         >
           {children}
@@ -40,3 +40,11 @@ export function Providers({ children, themeProps }: ProvidersProps) {
     </HeroUIProvider>
   );
 }
+
+/**
+ * Documentation du fichier
+ *
+ * - Role : Composant client qui installe les providers globaux de l'application frontend.
+ * - Fonctionnement : Il branche HeroUI pour la navigation, NextAuth pour la session et NextThemes pour la gestion du theme.
+ * - A retenir : Le theme est force en clair, ce qui stabilise l'apparence meme si le switch de theme existe encore.
+ */

@@ -27,3 +27,11 @@ export class CreateRessourceDto {
     @IsOptional()
     categoryId?: number;
 }
+
+/**
+ * Documentation du fichier
+ *
+ * - Role : DTO de creation de ressource. Il decrit les informations necessaires : titre, contenu, type et categorie.
+ * - Fonctionnement : Il doit idealement valider les types autorises et les champs obligatoires.
+ * - A retenir : Il sert de contrat entre le frontend de creation et l'API backend.
+ */

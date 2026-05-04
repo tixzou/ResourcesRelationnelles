@@ -12,3 +12,11 @@ export class UpdateRoleDto {
     @IsNotEmpty()
     role: Role;
 }
+
+/**
+ * Documentation du fichier
+ *
+ * - Role : DTO utilise pour changer le role d'un utilisateur depuis l'administration.
+ * - Fonctionnement : Il type le champ role avec l'enum Prisma Role afin d'eviter les valeurs libres.
+ * - A retenir : Il est consomme par AdminUserController sur PATCH /admin/users/:id/role.
+ */

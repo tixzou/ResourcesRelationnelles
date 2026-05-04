@@ -77,7 +77,6 @@ export default function AuthModal() {
 
   const { register, handleSubmit, formState: { errors }, watch, reset, setError } = useForm();
 
-  // (Optionnel) Conservation de ta logique de state si tu l'utilisais ailleurs
   const [dataUsersConnexion, setDataUsersConnexion] = useState<userConnexionData[]>([]);
   const [dataUsersInscription, setDataUsersInscription] = useState<userInscriptionData[]>([]);
 
@@ -457,3 +456,11 @@ export default function AuthModal() {
     </>
   );
 }
+
+/**
+ * Documentation du fichier
+ *
+ * - Role : Modal d'authentification client. Il gere les modes connexion, inscription et mot de passe oublie avec etats React.
+ * - Fonctionnement : Il appelle /auth/register pour creer un compte puis utilise signIn credentials pour connecter l'utilisateur.
+ * - A retenir : Il gere les champs, les erreurs, la visibilite des mots de passe et la bascule entre formulaires.
+ */

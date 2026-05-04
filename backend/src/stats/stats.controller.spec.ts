@@ -16,3 +16,11 @@ describe('StatsController', () => {
     expect(controller).toBeDefined();
   });
 });
+
+/**
+ * Documentation du fichier
+ *
+ * - Role : Test minimal du controleur statistiques. Il verifie que StatsController peut etre cree.
+ * - Fonctionnement : Il peut etre enrichi avec des tests de parsing de query params et de roles.
+ * - A retenir : Il ne valide pas encore le contenu des indicateurs.
+ */

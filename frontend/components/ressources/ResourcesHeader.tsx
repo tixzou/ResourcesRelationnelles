@@ -4,10 +4,10 @@ import { useEffect, useState } from "react";
 import { Input } from "@heroui/input";
 import { Button } from "@heroui/button";
 import { Tabs, Tab } from "@heroui/tabs";
-import { Search } from "lucide-react"; // SlidersHorizontal retiré si tu ne l'utilises pas
+import { Search } from "lucide-react";
 import { useSession } from "next-auth/react";
 
-import PublicResourcesList from "./PublicResourcesList"; // .tsx retiré !
+import PublicResourcesList from "./PublicResourcesList";
 import MyResourcesManager from "./MyResourcesManager";
 
 export default function ResourcesPage() {
@@ -32,7 +32,7 @@ export default function ResourcesPage() {
 
     return (
         <div className="w-full min-h-screen bg-[#F8FAFC] text-left">
-            {/* BANDEAU BLEU */}
+
             <section className="bg-[#1B365D] w-full py-16 px-6 sm:px-12 lg:px-24">
                 <div className="max-w-7xl mx-auto">
                     <h1 className="text-white text-4xl sm:text-5xl font-bold mb-4">
@@ -44,7 +44,6 @@ export default function ResourcesPage() {
                 </div>
             </section>
 
-            {/* NAVIGATION ET FILTRES */}
             <div className="bg-white border-b border-gray-200">
                 <section className="w-full px-6 sm:px-12 lg:px-24 pt-2">
                     <div className="max-w-7xl mx-auto">
@@ -75,8 +74,8 @@ export default function ResourcesPage() {
                             variant="bordered"
                         />
                         <div className="flex w-full md:w-auto gap-3">
-                            <select 
-                                value={category} 
+                            <select
+                                value={category}
                                 onChange={(e) => setCategory(e.target.value)}
                                 className="flex-1 md:w-64 bg-gray-50 border border-gray-200 rounded-xl px-4 h-10 text-sm outline-none cursor-pointer hover:bg-gray-100 transition-colors"
                             >
@@ -85,13 +84,13 @@ export default function ResourcesPage() {
                                     <option key={cat.id} value={cat.name}>{cat.name}</option>
                                 ))}
                             </select>
-                            
-                            <Button 
-                                variant="flat" 
+
+                            <Button
+                                variant="flat"
                                 className="h-10 px-6 font-medium"
                                 onPress={() => {
-                                    setSearch(""); 
-                                    setCategory(""); 
+                                    setSearch("");
+                                    setCategory("");
                                 }}
                             >
                                 Réinitialiser
@@ -101,7 +100,6 @@ export default function ResourcesPage() {
                 </section>
             </div>
 
-            {/* CONTENU */}
             <main className="max-w-7xl mx-auto px-6 sm:px-12 lg:px-24 py-12">
                 <div className="flex flex-col items-start justify-start w-full text-left">
                     {selectedTab === "catalogue" && (
@@ -115,3 +113,11 @@ export default function ResourcesPage() {
         </div>
     );
 }
+
+/**
+ * Documentation du fichier
+ *
+ * - Role : En-tete fonctionnel de la section ressources. Il gere la session, l'onglet actif, la recherche et le filtre categorie.
+ * - Fonctionnement : Il charge les categories depuis /category pour alimenter le select.
+ * - A retenir : Il affiche les vues catalogue, favoris et ressources personnelles selon l'etat de connexion.
+ */

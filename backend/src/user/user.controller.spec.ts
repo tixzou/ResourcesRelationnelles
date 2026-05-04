@@ -22,3 +22,11 @@ describe('UserController', () => {
     expect(controller).toBeDefined();
   });
 });
+
+/**
+ * Documentation du fichier
+ *
+ * - Role : Test de presence du controleur utilisateur. Il cree un module de test simple.
+ * - Fonctionnement : Il confirme que UserController peut etre instancie.
+ * - A retenir : Il ne teste pas encore de comportement HTTP concret.
+ */

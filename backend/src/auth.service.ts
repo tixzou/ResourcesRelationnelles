@@ -51,7 +51,7 @@ export class AuthService {
     if (!isPasswordValid) {
       throw new UnauthorizedException('Identifiants incorrects');
     }
-    // await this.prisma.connectionLog.create({ data: { userId: user.id } });
+
     return this.generateToken(user);
   }
 
@@ -76,7 +76,6 @@ export class AuthService {
     };
   }
 
-  // Mise à jour du mot de passe
   async updatePassword(userId: number, oldPass: string, newPass: string) {
     const user = await this.prisma.user.findUnique({ where: { id: userId } });
     if (!user) throw new UnauthorizedException('Utilisateur non trouvé');
@@ -95,7 +94,6 @@ export class AuthService {
     return { success: true, message: 'Mot de passe mis à jour avec succès.' };
   }
 
-  //Suppression du compte
   async deleteUser(userId: number) {
     await this.prisma.user.delete({ where: { id: userId } });
     return {
@@ -104,3 +102,11 @@ export class AuthService {
     };
   }
 }
+
+/**
+ * Documentation du fichier
+ *
+ * - Role : Service central d'authentification. Il gere inscription, connexion, generation de JWT, changement de mot de passe et suppression de compte.
+ * - Fonctionnement : Il hashe les mots de passe avec bcrypt, compare les credentials et refuse les comptes suspendus.
+ * - A retenir : Le JWT contient les informations essentielles du user : id, email, role, prenom et nom.
+ */

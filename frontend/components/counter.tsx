@@ -12,3 +12,11 @@ export const Counter = () => {
     </Button>
   );
 };
+
+/**
+ * Documentation du fichier
+ *
+ * - Role : Composant exemple avec etat local. Il affiche un bouton HeroUI et incremente un compteur au clic.
+ * - Fonctionnement : Il n'est pas relie au domaine metier de l'application.
+ * - A retenir : Il peut etre supprime si le template doit etre nettoye.
+ */

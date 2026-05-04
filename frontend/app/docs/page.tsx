@@ -7,3 +7,11 @@ export default function DocsPage() {
     </div>
   );
 }
+
+/**
+ * Documentation du fichier
+ *
+ * - Role : Page Docs minimale. Elle affiche uniquement le titre de page.
+ * - Fonctionnement : Aucun appel API ni etat local n'est utilise dans ce fichier.
+ * - A retenir : Elle reste un placeholder tant que la documentation utilisateur n'est pas redigee dans l'interface.
+ */

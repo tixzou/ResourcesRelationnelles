@@ -16,3 +16,11 @@ describe('CommentController', () => {
     expect(controller).toBeDefined();
   });
 });
+
+/**
+ * Documentation du fichier
+ *
+ * - Role : Test minimal du controleur commentaires. Il verifie que le controleur peut etre cree.
+ * - Fonctionnement : Il sert de point de depart pour ajouter des tests de creation et suppression.
+ * - A retenir : Il ne mocke pas encore les cas d'autorisation complexes.
+ */

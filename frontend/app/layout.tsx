@@ -1,4 +1,4 @@
-// 👇 CORRECTION : Utilisation du chemin relatif, ça marche à 100%
+
 import "@/styles/globals.css";
 import { Metadata, Viewport } from "next";
 import clsx from "clsx";
@@ -34,7 +34,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    // La classe "light" force ton HTML en mode clair
+
     <html suppressHydrationWarning lang="fr" className="light text-foreground bg-background">
       <head />
       <body
@@ -43,7 +43,7 @@ export default function RootLayout({
           fontSans.variable,
         )}
       >
-        {/* On force le Provider en mode clair ici aussi */}
+
         <Providers themeProps={{ attribute: "class", defaultTheme: "light", forcedTheme: "light" }}>
           <div className="relative flex flex-col h-screen">
             <NavbarComponent />
@@ -59,3 +59,11 @@ export default function RootLayout({
     </html>
   );
 }
+
+/**
+ * Documentation du fichier
+ *
+ * - Role : Layout racine Next.js. Il charge les styles globaux, les polices, les metadata et le viewport.
+ * - Fonctionnement : Il entoure toutes les pages avec les providers, la navbar, le contenu principal et le footer.
+ * - A retenir : C'est le point commun de l'interface : toute modification ici impacte l'ensemble du frontend.
+ */

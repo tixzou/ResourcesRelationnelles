@@ -25,13 +25,12 @@ model User {
   createdAt DateTime @default(now())
   updatedAt DateTime @default(now()) @updatedAt
 
-  // Relations
   ressources         Ressource[]
   comments           Comment[]
   favorites          Favorite[]
   savedResources     SavedResource[]
-  exploitedResources ExploitedResource[] // Pour le tableau de bord de progression
-  participations     Participation[]     // Pour les activités/jeux
+  exploitedResources ExploitedResource[]
+  participations     Participation[]
   messagesSent       Message[]           @relation("SentMessages")
   connections        ConnectionLog[]
 }
@@ -46,7 +45,7 @@ model Ressource {
   id          Int      @id @default(autoincrement())
   title       String
   content     String?
-  type        String   // VIDEO, ARTICLE, JEU, ACTIVITE
+  type        String
   isPublic    Boolean  @default(true)
   isValidated Boolean  @default(false)
   views       Int      @default(0)
@@ -54,31 +53,30 @@ model Ressource {
   updatedAt   DateTime @default(now()) @updatedAt
 
   authorId    Int
-  // 👈 AJOUTÉ : onDelete: Cascade pour supprimer la ressource si l'auteur est supprimé
+
   author      User     @relation(fields: [authorId], references: [id], onDelete: Cascade)
-  
+
   categoryId  Int?
   category    Category? @relation(fields: [categoryId], references: [id])
 
-  // Interactions
   comments      Comment[]
   favoritedBy   Favorite[]
   savedBy       SavedResource[]
   exploitedBy   ExploitedResource[]
   viewLogs      ViewLog[]
-  participations Participation[] // Les gens inscrits à cette activité
-  messages       Message[]       // Le chat de groupe de cette ressource
+  participations Participation[]
+  messages       Message[]
 }
 
 model Comment {
   id          Int      @id @default(autoincrement())
   content     String
   createdAt   DateTime @default(now())
-  
+
   authorId    Int
-  // 👈 AJOUTÉ : onDelete: Cascade pour supprimer le commentaire si l'auteur est supprimé
+
   author      User     @relation(fields: [authorId], references: [id], onDelete: Cascade)
-  
+
   ressourceId Int
   ressource   Ressource @relation(fields: [ressourceId], references: [id], onDelete: Cascade)
 
@@ -87,34 +85,31 @@ model Comment {
   replies     Comment[] @relation("Replies")
 }
 
-// MODIFIÉ : Message lié à une ressource pour le chat d'activité
 model Message {
   id          Int       @id @default(autoincrement())
   content     String
   createdAt   DateTime  @default(now())
-  
+
   senderId    Int
-  // 👈 AJOUTÉ : onDelete: Cascade pour supprimer le message si l'auteur est supprimé
+
   sender      User      @relation("SentMessages", fields: [senderId], references: [id], onDelete: Cascade)
-  
+
   ressourceId Int
   ressource   Ressource @relation(fields: [ressourceId], references: [id], onDelete: Cascade)
 }
 
-// NOUVEAU : Participation aux activités/jeux
 model Participation {
   id          Int       @id @default(autoincrement())
   userId      Int
   user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
   ressourceId Int
   ressource   Ressource @relation(fields: [ressourceId], references: [id], onDelete: Cascade)
-  status      String    @default("INVITED") // INVITED, ACCEPTED, DECLINED
+  status      String    @default("INVITED")
   createdAt   DateTime  @default(now())
 
   @@unique([userId, ressourceId])
 }
 
-// NOUVEAU : Suivi de progression (Ressource exploitée)
 model ExploitedResource {
   id          Int       @id @default(autoincrement())
   userId      Int
@@ -161,3 +156,9 @@ model ConnectionLog {
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   createdAt DateTime @default(now())
 }
+
+// Documentation du fichier
+//
+// - Role : Schema Prisma principal du backend.
+// - Fonctionnement : Il configure PostgreSQL, genere le client Prisma et definit les enums, modeles, relations et contraintes uniques.
+// - A retenir : Toute evolution de la base doit passer par ce fichier puis par une migration Prisma.

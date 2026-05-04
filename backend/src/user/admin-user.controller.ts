@@ -10,7 +10,7 @@ import { UpdateRoleDto } from './dto/update-role.dto';
 @ApiTags('admin/users')
 @ApiBearerAuth()
 @UseGuards(AuthGuard, RolesGuard)
-@Roles(Role.ADMINISTRATEUR, Role.SUPER_ADMINISTRATEUR) // 👈 Seul l'admin a accès à tout ce contrôleur
+@Roles(Role.ADMINISTRATEUR, Role.SUPER_ADMINISTRATEUR)
 @Controller('admin/users')
 export class AdminUserController {
     constructor(private readonly userService: UserService) { }
@@ -40,3 +40,11 @@ export class AdminUserController {
         return this.userService.remove(+id);
     }
 }
+
+/**
+ * Documentation du fichier
+ *
+ * - Role : Controleur admin des utilisateurs expose sur /admin/users. Il est protege par AuthGuard, RolesGuard et les roles administrateur/super administrateur.
+ * - Fonctionnement : Il liste les utilisateurs, change les roles, suspend/reactive et supprime les comptes.
+ * - A retenir : Il delegue toutes les operations persistantes a UserService.
+ */

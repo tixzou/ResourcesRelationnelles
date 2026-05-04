@@ -26,3 +26,11 @@ describe('RessourceController', () => {
     expect(controller).toBeDefined();
   });
 });
+
+/**
+ * Documentation du fichier
+ *
+ * - Role : Test minimal du controleur ressources. Il verifie l'instanciation du controleur.
+ * - Fonctionnement : Il peut etre enrichi avec des tests de routes publiques et protegees.
+ * - A retenir : Les routes parametrees meritent une attention particuliere car leur ordre est important.
+ */

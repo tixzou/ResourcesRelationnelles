@@ -1,4 +1,4 @@
-// @ts-check
+
 import eslint from '@eslint/js';
 import eslintPluginPrettierRecommended from 'eslint-plugin-prettier/recommended';
 import globals from 'globals';
@@ -33,3 +33,11 @@ export default tseslint.config(
     },
   },
 );
+
+/**
+ * Documentation du fichier
+ *
+ * - Role : Configuration ESLint du backend NestJS.
+ * - Fonctionnement : Elle combine les recommandations JavaScript, TypeScript, Prettier et les globals Node/Jest.
+ * - A retenir : npm run lint s'appuie sur ce fichier pour detecter et corriger le style du code backend.
+ */

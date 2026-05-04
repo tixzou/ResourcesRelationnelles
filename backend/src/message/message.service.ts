@@ -5,13 +5,12 @@ import { PrismaService } from '../prisma.service';
 export class MessageService {
   constructor(private prisma: PrismaService) {}
 
-  // 1. Envoyer un message dans le chat d'une ressource/activité
   async sendMessageToActivity(senderId: number, ressourceId: number, content: string) {
     return this.prisma.message.create({
       data: {
         content,
         senderId,
-        ressourceId, // Doit être un number obligatoire selon ton schéma
+        ressourceId,
       },
       include: {
         sender: { select: { id: true, firstName: true, lastName: true } }
@@ -19,7 +18,6 @@ export class MessageService {
     });
   }
 
-  // 2. Récupérer tout l'historique du chat d'une activité
   async getActivityMessages(ressourceId: number) {
     return this.prisma.message.findMany({
       where: { ressourceId },
@@ -30,3 +28,11 @@ export class MessageService {
     });
   }
 }
+
+/**
+ * Documentation du fichier
+ *
+ * - Role : Service de messagerie. Il cree un message avec contenu, expediteur et ressource cible.
+ * - Fonctionnement : Il inclut les informations de l'expediteur dans la reponse pour affichage frontend.
+ * - A retenir : Il recupere l'historique des messages dans l'ordre de creation ascendant.
+ */

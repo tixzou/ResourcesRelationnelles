@@ -16,22 +16,28 @@ export class CommentController {
     });
   }
 
-  // 👇 NOUVELLE ROUTE : Suppression par un administrateur (À mettre AVANT le @Delete(':id') classique)
   @UseGuards(AuthGuard)
   @Delete('admin/:id')
   async removeByAdmin(@Param('id') id: string) {
     return this.commentService.removeByAdmin(Number(id));
   }
 
-  // Route classique de suppression (réservée à l'auteur du commentaire)
   @UseGuards(AuthGuard)
   @Delete(':id')
   async remove(@Param('id') id: string, @Request() req) {
     return this.commentService.remove(Number(id), req.user.sub);
   }
-  
+
   @Get('ressource/:id')
   async getByRessource(@Param('id') id: string) {
     return this.commentService.findByRessource(Number(id));
   }
 }
+
+/**
+ * Documentation du fichier
+ *
+ * - Role : Controleur des commentaires expose sur /comment. Il gere creation, suppression auteur, suppression admin et lecture par ressource.
+ * - Fonctionnement : Les routes d'ecriture sont protegees par AuthGuard afin d'identifier l'utilisateur connecte.
+ * - A retenir : La route admin/:id existe pour permettre la moderation depuis l'interface admin.
+ */

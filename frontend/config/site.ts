@@ -67,3 +67,11 @@ export const siteConfig = {
     sponsor: "https://patreon.com/jrgarciadev",
   },
 };
+
+/**
+ * Documentation du fichier
+ *
+ * - Role : Configuration globale du site frontend. Elle contient le nom, la description, les liens de navigation et les liens externes.
+ * - Fonctionnement : Certaines entrees viennent encore du template HeroUI et peuvent etre personnalisees.
+ * - A retenir : Centraliser ces valeurs evite de dupliquer les libelles de navigation dans plusieurs composants.
+ */

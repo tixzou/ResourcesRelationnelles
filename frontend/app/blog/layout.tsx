@@ -11,3 +11,11 @@ export default function BlogLayout({
     </section>
   );
 }
+
+/**
+ * Documentation du fichier
+ *
+ * - Role : Layout de la section Blog. Il centre les enfants dans une zone de lecture compacte.
+ * - Fonctionnement : Il est purement structurel et ne gere aucune donnee.
+ * - A retenir : Il partage le meme style que les pages template About, Docs et Pricing.
+ */

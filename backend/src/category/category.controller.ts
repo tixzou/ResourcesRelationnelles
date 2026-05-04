@@ -13,7 +13,6 @@ import { UpdateCategoryDto } from './dto/update-category.dto';
 export class CategoryController {
   constructor(private readonly categoryService: CategoryService) { }
 
-  // Créer une catégorie (Admin uniquement)
   @ApiBearerAuth()
   @UseGuards(AuthGuard, RolesGuard)
   @Roles(Role.ADMINISTRATEUR, Role.SUPER_ADMINISTRATEUR)
@@ -22,13 +21,11 @@ export class CategoryController {
     return this.categoryService.create(createCategoryDto);
   }
 
-  // Récupérer toutes les catégories (Public, car on en a besoin pour les filtres)
   @Get()
   findAll() {
     return this.categoryService.findAll();
   }
 
-  // Modifier une catégorie (Admin uniquement)
   @ApiBearerAuth()
   @UseGuards(AuthGuard, RolesGuard)
   @Roles(Role.ADMINISTRATEUR, Role.SUPER_ADMINISTRATEUR)
@@ -37,7 +34,6 @@ export class CategoryController {
     return this.categoryService.update(+id, updateCategoryDto);
   }
 
-  // Supprimer une catégorie (Admin uniquement)
   @ApiBearerAuth()
   @UseGuards(AuthGuard, RolesGuard)
   @Roles(Role.ADMINISTRATEUR, Role.SUPER_ADMINISTRATEUR)
@@ -46,3 +42,11 @@ export class CategoryController {
     return this.categoryService.remove(+id);
   }
 }
+
+/**
+ * Documentation du fichier
+ *
+ * - Role : Controleur des categories expose sur /category. La liste est publique pour remplir les filtres du catalogue.
+ * - Fonctionnement : La creation, modification et suppression sont protegees par role administrateur ou super administrateur.
+ * - A retenir : Il utilise les DTO de creation et mise a jour pour structurer les entrees.
+ */

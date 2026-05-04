@@ -11,3 +11,11 @@ export default function PricingLayout({
     </section>
   );
 }
+
+/**
+ * Documentation du fichier
+ *
+ * - Role : Layout de la section Pricing. Il place le contenu au centre de la page.
+ * - Fonctionnement : Il n'a pas de logique applicative et sert seulement de conteneur visuel.
+ * - A retenir : Il est coherent avec les autres layouts simples du template.
+ */

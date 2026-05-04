@@ -46,3 +46,11 @@ export default function HomePage() {
     </div>
   );
 }
+
+/**
+ * Documentation du fichier
+ *
+ * - Role : Page d'accueil de l'application. Elle presente la plateforme et oriente l'utilisateur vers les ressources.
+ * - Fonctionnement : Elle utilise une mise en page visuelle statique sans appel API ni etat React.
+ * - A retenir : Elle sert de premier contact avec l'identite (RE)Sources Relationnelles.
+ */

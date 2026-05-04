@@ -26,7 +26,6 @@ export class CommentService {
 
     if (!comment) throw new NotFoundException('Commentaire introuvable');
 
-    // Sécurité : seul l'auteur peut supprimer
     if (comment.authorId !== userId) {
       throw new ForbiddenException("Vous n'avez pas l'autorisation de supprimer ce commentaire");
     }
@@ -47,14 +46,21 @@ export class CommentService {
     });
   }
 
-  // Récupérer les commentaires d'une ressource
   async findByRessource(ressourceId: number) {
     return this.prisma.comment.findMany({
       where: { ressourceId },
       include: {
         author: { select: { firstName: true, lastName: true } }
       },
-      orderBy: { createdAt: 'asc' } // Pour avoir les plus anciens en haut (chronologique)
+      orderBy: { createdAt: 'asc' }
     });
   }
 }
+
+/**
+ * Documentation du fichier
+ *
+ * - Role : Service metier des commentaires. Il cree des commentaires ou reponses rattaches a une ressource et a un auteur.
+ * - Fonctionnement : Il controle qu'un utilisateur ne supprime que ses propres commentaires, sauf via la methode admin.
+ * - A retenir : Il liste les commentaires d'une ressource dans l'ordre chronologique avec les informations auteur.
+ */
