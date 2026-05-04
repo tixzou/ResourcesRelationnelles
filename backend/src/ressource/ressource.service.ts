@@ -155,6 +155,28 @@ export class RessourceService {
     };
   }
 
+  // 👇 NOUVELLE MÉTHODE : Récupérer les favoris de l'utilisateur
+  async findMyFavorites(userId: number) {
+    const favorites = await this.prisma.favorite.findMany({
+      where: { userId },
+      include: {
+        ressource: {
+          include: {
+            category: true,
+            author: { select: { firstName: true, lastName: true } }
+          }
+        }
+      },
+      orderBy: { createdAt: 'desc' }
+    });
+
+    // On extrait la ressource de l'objet favorite pour renvoyer un tableau propre
+    return favorites.map(fav => ({
+      ...fav.ressource,
+      isFavorited: true // Par définition, elles sont toutes en favori ici
+    }));
+  }
+
   // --- ADMINISTRATION ---
   async findAllAdmin() {
     return this.prisma.ressource.findMany({

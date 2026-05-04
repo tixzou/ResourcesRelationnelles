@@ -23,31 +23,52 @@ export class RessourceController {
     return this.ressourceService.getProgressionStats(req.user.sub);
   }
 
-  // 👇 NOUVELLE ROUTE : Création d'une ressource
+  // 👇 NOUVELLE ROUTE : Récupérer les favoris (Bien placée AVANT @Get(':id'))
+  @UseGuards(AuthGuard)
+  @Get('favorites/me')
+  findMyFavorites(@Request() req) {
+    return this.ressourceService.findMyFavorites(req.user.sub);
+  }
+
   @UseGuards(AuthGuard)
   @Post()
   create(@Body() createRessourceDto: any, @Request() req) {
     return this.ressourceService.create(createRessourceDto, req.user.sub);
   }
 
-  // 👇 NOUVELLE ROUTE : Modification d'une ressource
   @UseGuards(AuthGuard)
   @Put(':id')
   update(@Param('id') id: string, @Body() updateData: any, @Request() req) {
     return this.ressourceService.update(+id, req.user.sub, updateData);
   }
 
-  // 👇 NOUVELLE ROUTE : Suppression d'une ressource
   @UseGuards(AuthGuard)
   @Delete(':id')
   remove(@Param('id') id: string, @Request() req) {
     return this.ressourceService.remove(+id, req.user.sub);
   }
 
-  // Attention : toujours garder les routes paramétrées (comme :id) APRES les routes fixes (comme 'me' ou 'progression')
+  // Attention : toujours garder les routes paramétrées (comme :id) APRES les routes fixes
   @Get(':id')
   findOne(@Param('id') id: string, @Request() req) {
-    return this.ressourceService.findOne(+id, req.user?.sub);
+    let userId = undefined;
+
+    // On vérifie si un token a été envoyé dans le header (en gérant la casse potentielle)
+    const authHeader = req.headers?.authorization || req.headers?.Authorization;
+    if (authHeader && typeof authHeader === 'string' && authHeader.startsWith('Bearer ')) {
+      const token = authHeader.split(' ')[1];
+      try {
+        // Décodage manuel du payload du JWT (sans avoir besoin du AuthGuard)
+        const payload = JSON.parse(Buffer.from(token.split('.')[1], 'base64').toString());
+        
+        // Assure-toi d'utiliser la bonne propriété selon ton JWT (sub, userId ou id)
+        userId = payload.sub || payload.userId || payload.id; 
+      } catch (e) {
+        // Si le token est invalide, on l'ignore silencieusement
+      }
+    }
+
+    return this.ressourceService.findOne(+id, userId);
   }
 
   @UseGuards(AuthGuard)
