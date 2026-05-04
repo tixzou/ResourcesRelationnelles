@@ -23,13 +23,13 @@ export default function Footer() {
         </div>
 
         <div className="flex gap-6 text-sm text-gray-500">
-          <Link href="#" color="foreground" className="hover:text-[#003E7E] text-xs sm:text-sm">
+          <Link href="/cgu" color="foreground" className="hover:text-[#003E7E] text-xs sm:text-sm">
             CGU
           </Link>
-          <Link href="#" color="foreground" className="hover:text-[#003E7E] text-xs sm:text-sm">
+          <Link href="/confidentialite" color="foreground" className="hover:text-[#003E7E] text-xs sm:text-sm">
             Confidentialité
           </Link>
-          <Link href="#" color="foreground" className="hover:text-[#003E7E] text-xs sm:text-sm">
+          <Link href="/contact" color="foreground" className="hover:text-[#003E7E] text-xs sm:text-sm">
             Contact
           </Link>
         </div>
@@ -48,5 +48,5 @@ export default function Footer() {
  *
  * - Role : Footer global de l'application. Il affiche le logo, le nom de marque, des liens institutionnels et l'annee courante.
  * - Fonctionnement : Il reste present sur toutes les pages via le layout racine.
- * - A retenir : Les liens CGU, Confidentialite et Contact sont encore des placeholders.
+ * - A retenir : Les liens CGU, Confidentialite et Contact pointent vers des pages dediees.
  */
