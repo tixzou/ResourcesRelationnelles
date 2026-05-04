@@ -1,5 +1,5 @@
 // 👇 CORRECTION : Utilisation du chemin relatif, ça marche à 100%
-import "../styles/globals.css";
+import "@/styles/globals.css";
 import { Metadata, Viewport } from "next";
 import clsx from "clsx";
 
