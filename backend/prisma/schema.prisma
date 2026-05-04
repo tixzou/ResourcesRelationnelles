@@ -7,6 +7,12 @@ generator client {
   provider = "prisma-client-js"
 }
 
+generator erd {
+  provider = "prisma-erd-generator"
+  output   = "../MLD.svg"
+  theme    = "default"
+}
+
 enum Role {
   CITOYEN
   MODERATEUR
@@ -155,6 +161,11 @@ model ConnectionLog {
   userId    Int
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   createdAt DateTime @default(now())
+}
+generator dbml {
+  provider   = "prisma-dbml-generator"
+  output     = "../dbml"
+  outputName = "MLD.dbml"
 }
 
 // Documentation du fichier

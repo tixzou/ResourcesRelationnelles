@@ -1,0 +1,183 @@
+//// ------------------------------------------------------
+//// THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
+//// ------------------------------------------------------
+
+Table User {
+  id Int [pk, increment]
+  email String [unique, not null]
+  password String [not null]
+  role Role [not null, default: 'CITOYEN']
+  firstName String [not null]
+  lastName String [not null]
+  isActive Boolean [not null, default: true]
+  createdAt DateTime [default: `now()`, not null]
+  updatedAt DateTime [default: `now()`, not null]
+  ressources Ressource [not null]
+  comments Comment [not null]
+  favorites Favorite [not null]
+  savedResources SavedResource [not null]
+  exploitedResources ExploitedResource [not null]
+  participations Participation [not null]
+  messagesSent Message [not null]
+  connections ConnectionLog [not null]
+}
+
+Table Category {
+  id Int [pk, increment]
+  name String [unique, not null]
+  ressources Ressource [not null]
+}
+
+Table Ressource {
+  id Int [pk, increment]
+  title String [not null]
+  content String
+  type String [not null]
+  isPublic Boolean [not null, default: true]
+  isValidated Boolean [not null, default: false]
+  views Int [not null, default: 0]
+  createdAt DateTime [default: `now()`, not null]
+  updatedAt DateTime [default: `now()`, not null]
+  authorId Int [not null]
+  author User [not null]
+  categoryId Int
+  category Category
+  comments Comment [not null]
+  favoritedBy Favorite [not null]
+  savedBy SavedResource [not null]
+  exploitedBy ExploitedResource [not null]
+  viewLogs ViewLog [not null]
+  participations Participation [not null]
+  messages Message [not null]
+}
+
+Table Comment {
+  id Int [pk, increment]
+  content String [not null]
+  createdAt DateTime [default: `now()`, not null]
+  authorId Int [not null]
+  author User [not null]
+  ressourceId Int [not null]
+  ressource Ressource [not null]
+  parentId Int
+  parent Comment
+  replies Comment [not null]
+}
+
+Table Message {
+  id Int [pk, increment]
+  content String [not null]
+  createdAt DateTime [default: `now()`, not null]
+  senderId Int [not null]
+  sender User [not null]
+  ressourceId Int [not null]
+  ressource Ressource [not null]
+}
+
+Table Participation {
+  id Int [pk, increment]
+  userId Int [not null]
+  user User [not null]
+  ressourceId Int [not null]
+  ressource Ressource [not null]
+  status String [not null, default: 'INVITED']
+  createdAt DateTime [default: `now()`, not null]
+
+  indexes {
+    (userId, ressourceId) [unique]
+  }
+}
+
+Table ExploitedResource {
+  id Int [pk, increment]
+  userId Int [not null]
+  user User [not null]
+  ressourceId Int [not null]
+  ressource Ressource [not null]
+  createdAt DateTime [default: `now()`, not null]
+
+  indexes {
+    (userId, ressourceId) [unique]
+  }
+}
+
+Table Favorite {
+  id Int [pk, increment]
+  userId Int [not null]
+  user User [not null]
+  ressourceId Int [not null]
+  ressource Ressource [not null]
+  createdAt DateTime [default: `now()`, not null]
+
+  indexes {
+    (userId, ressourceId) [unique]
+  }
+}
+
+Table SavedResource {
+  id Int [pk, increment]
+  userId Int [not null]
+  user User [not null]
+  ressourceId Int [not null]
+  ressource Ressource [not null]
+  createdAt DateTime [default: `now()`, not null]
+
+  indexes {
+    (userId, ressourceId) [unique]
+  }
+}
+
+Table ViewLog {
+  id Int [pk, increment]
+  ressourceId Int [not null]
+  ressource Ressource [not null]
+  createdAt DateTime [default: `now()`, not null]
+}
+
+Table ConnectionLog {
+  id Int [pk, increment]
+  userId Int [not null]
+  user User [not null]
+  createdAt DateTime [default: `now()`, not null]
+}
+
+Enum Role {
+  CITOYEN
+  MODERATEUR
+  ADMINISTRATEUR
+  SUPER_ADMINISTRATEUR
+}
+
+Ref: Ressource.authorId > User.id [delete: Cascade]
+
+Ref: Ressource.categoryId > Category.id
+
+Ref: Comment.authorId > User.id [delete: Cascade]
+
+Ref: Comment.ressourceId > Ressource.id [delete: Cascade]
+
+Ref: Comment.parentId - Comment.id [delete: Cascade]
+
+Ref: Message.senderId > User.id [delete: Cascade]
+
+Ref: Message.ressourceId > Ressource.id [delete: Cascade]
+
+Ref: Participation.userId > User.id [delete: Cascade]
+
+Ref: Participation.ressourceId > Ressource.id [delete: Cascade]
+
+Ref: ExploitedResource.userId > User.id [delete: Cascade]
+
+Ref: ExploitedResource.ressourceId > Ressource.id [delete: Cascade]
+
+Ref: Favorite.userId > User.id [delete: Cascade]
+
+Ref: Favorite.ressourceId > Ressource.id [delete: Cascade]
+
+Ref: SavedResource.userId > User.id [delete: Cascade]
+
+Ref: SavedResource.ressourceId > Ressource.id [delete: Cascade]
+
+Ref: ViewLog.ressourceId > Ressource.id [delete: Cascade]
+
+Ref: ConnectionLog.userId > User.id [delete: Cascade]
