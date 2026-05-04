@@ -17,8 +17,6 @@ export class RessourceService {
     });
   }
 
-  // backend/src/ressource/ressource.service.ts
-
   async findOne(id: number, userId?: number) {
     if (!id || isNaN(id)) return null;
 
@@ -36,10 +34,9 @@ export class RessourceService {
           include: { author: { select: { id: true, firstName: true, lastName: true } } },
           orderBy: { createdAt: 'desc' }
         },
-        // On demande explicitement à Prisma de chercher SI ce userId existe dans les favoris de cette ressource
         favoritedBy: {
           where: {
-            userId: userId || -1 // Si pas de userId, on cherche un ID impossible
+            userId: userId || -1
           }
         }
       }
@@ -47,7 +44,6 @@ export class RessourceService {
 
     if (!ressource) return null;
 
-    // La ressource est favorisée si le tableau favoritedBy contient notre entrée
     const isFavorited = ressource.favoritedBy.length > 0;
 
     return {
@@ -75,6 +71,35 @@ export class RessourceService {
       include: { category: true },
       orderBy: { createdAt: 'desc' }
     });
+  }
+
+  // 👇 NOUVELLE MÉTHODE : Modification par l'utilisateur
+  async update(id: number, authorId: number, updateData: any) {
+    const ressource = await this.prisma.ressource.findUnique({ where: { id } });
+    if (!ressource || ressource.authorId !== authorId) {
+      throw new UnauthorizedException("Vous n'êtes pas l'auteur de cette ressource ou elle n'existe pas.");
+    }
+
+    return this.prisma.ressource.update({
+      where: { id },
+      data: {
+        title: updateData.title,
+        content: updateData.content,
+        type: updateData.type,
+        categoryId: updateData.categoryId ? Number(updateData.categoryId) : null,
+        isValidated: false, // La ressource repasse en attente de validation après édition
+      },
+    });
+  }
+
+  // 👇 NOUVELLE MÉTHODE : Suppression par l'utilisateur
+  async remove(id: number, authorId: number) {
+    const ressource = await this.prisma.ressource.findUnique({ where: { id } });
+    if (!ressource || ressource.authorId !== authorId) {
+      throw new UnauthorizedException("Vous n'êtes pas l'auteur de cette ressource ou elle n'existe pas.");
+    }
+
+    return this.prisma.ressource.delete({ where: { id } });
   }
 
   async toggleFavorite(ressourceId: number, userId: number) {

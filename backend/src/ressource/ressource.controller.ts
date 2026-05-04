@@ -1,4 +1,3 @@
-// backend/src/ressource/ressource.controller.ts
 import { Controller, Get, Post, Body, Param, Put, Delete, UseGuards, Request, Query } from '@nestjs/common';
 import { RessourceService } from './ressource.service';
 import { AuthGuard } from '../auth.guard';
@@ -24,9 +23,30 @@ export class RessourceController {
     return this.ressourceService.getProgressionStats(req.user.sub);
   }
 
+  // 👇 NOUVELLE ROUTE : Création d'une ressource
+  @UseGuards(AuthGuard)
+  @Post()
+  create(@Body() createRessourceDto: any, @Request() req) {
+    return this.ressourceService.create(createRessourceDto, req.user.sub);
+  }
+
+  // 👇 NOUVELLE ROUTE : Modification d'une ressource
+  @UseGuards(AuthGuard)
+  @Put(':id')
+  update(@Param('id') id: string, @Body() updateData: any, @Request() req) {
+    return this.ressourceService.update(+id, req.user.sub, updateData);
+  }
+
+  // 👇 NOUVELLE ROUTE : Suppression d'une ressource
+  @UseGuards(AuthGuard)
+  @Delete(':id')
+  remove(@Param('id') id: string, @Request() req) {
+    return this.ressourceService.remove(+id, req.user.sub);
+  }
+
+  // Attention : toujours garder les routes paramétrées (comme :id) APRES les routes fixes (comme 'me' ou 'progression')
   @Get(':id')
   findOne(@Param('id') id: string, @Request() req) {
-    // Le userId est optionnel pour vérifier si c'est en favori
     return this.ressourceService.findOne(+id, req.user?.sub);
   }
 

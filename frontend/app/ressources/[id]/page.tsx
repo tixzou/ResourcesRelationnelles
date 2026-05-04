@@ -80,7 +80,6 @@ export default function RessourceDetail() {
           color: !previousState ? "danger" : "default",
           variant: "flat"
         });
-        // NOTE: On ne rappelle PAS fetchRessource() ici pour éviter que l'UI ne "saute"
       } else {
         throw new Error();
       }
@@ -90,8 +89,6 @@ export default function RessourceDetail() {
       addToast({ title: "Erreur lors de la mise à jour", color: "danger" });
     }
   };
-
-  // ... (Garde tes fonctions handlePostComment et handleConfirmDelete identiques) ...
 
   const handlePostComment = async (content: string, parentId: number | null = null) => {
     if (!content.trim()) return;
@@ -130,6 +127,7 @@ export default function RessourceDetail() {
   if (loading) return <div className="flex justify-center p-24"><Spinner size="lg" /></div>;
   if (!ressource) return <div className="text-center p-24"><p>Ressource introuvable.</p></div>;
 
+  // On récupère uniquement les commentaires de premier niveau
   const rootComments = ressource.comments?.filter((c: any) => !c.parentId) || [];
 
   return (
@@ -205,6 +203,7 @@ export default function RessourceDetail() {
             <div className="space-y-8">
               {rootComments.map((root: any) => {
                 const isMyComment = session && Number((session as any).user?.id) === Number(root.authorId);
+                
                 return (
                   <div key={root.id} className="space-y-4">
                     <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100 text-left">
@@ -229,10 +228,14 @@ export default function RessourceDetail() {
                           </Dropdown>
                         )}
                       </div>
+                      
                       <p className="text-[15px] text-gray-700 leading-normal mb-5">{root.content}</p>
+                      
                       <Button size="sm" variant="light" startContent={<Reply size={14} />} className="text-gray-500 font-bold hover:text-blue-600 px-0 h-auto" onPress={() => setReplyToId(replyToId === root.id ? null : root.id)}>
                         Répondre
                       </Button>
+                      
+                      {/* Formulaire de réponse */}
                       {replyToId === root.id && (
                         <div className="mt-5 pt-5 border-t border-gray-50 space-y-3">
                           <Textarea autoFocus variant="bordered" placeholder={`Répondre à ${root.author?.firstName}...`} value={replyInput} onValueChange={setReplyInput} />
@@ -242,6 +245,45 @@ export default function RessourceDetail() {
                           </div>
                         </div>
                       )}
+
+                      {/* --- AFFICHAGE DES RÉPONSES (COMMENTAIRES ENFANTS) --- */}
+                      {ressource.comments
+                        ?.filter((c: any) => c.parentId === root.id)
+                        .map((reply: any) => {
+                          const isMyReply = session && Number((session as any).user?.id) === Number(reply.authorId);
+                          
+                          return (
+                            <div key={reply.id} className="mt-4 ml-6 sm:ml-10 p-4 bg-gray-50 rounded-xl border border-gray-100">
+                              <div className="flex justify-between items-start mb-3">
+                                <div className="flex items-center gap-3">
+                                  <Avatar name={reply.author?.firstName} size="sm" className="bg-blue-100 text-[#1B365D] font-bold w-7 h-7 text-xs" />
+                                  <div>
+                                    <p className="font-bold text-xs text-[#1B365D]">{reply.author?.firstName} {reply.author?.lastName}</p>
+                                    <p className="text-[10px] text-gray-400 font-medium uppercase tracking-tighter">{new Date(reply.createdAt).toLocaleDateString()}</p>
+                                  </div>
+                                </div>
+                                
+                                {isMyReply && (
+                                  <Dropdown placement="bottom-end">
+                                    <DropdownTrigger>
+                                      <Button isIconOnly size="sm" variant="light" className="text-gray-400 h-6 w-6 min-w-0">
+                                        <MoreHorizontal size={14} />
+                                      </Button>
+                                    </DropdownTrigger>
+                                    <DropdownMenu aria-label="Actions">
+                                      <DropdownItem key="delete" color="danger" className="text-danger" startContent={<Trash2 size={16} />} onPress={() => { setCommentToDelete(reply.id); onOpen(); }}>
+                                        Supprimer
+                                      </DropdownItem>
+                                    </DropdownMenu>
+                                  </Dropdown>
+                                )}
+                              </div>
+                              <p className="text-sm text-gray-700 leading-normal">{reply.content}</p>
+                            </div>
+                          );
+                      })}
+                      {/* --- FIN AFFICHAGE DES RÉPONSES --- */}
+
                     </div>
                   </div>
                 );
