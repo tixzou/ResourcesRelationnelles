@@ -15,6 +15,11 @@ import { configureApp } from '../src/app-setup';
  * grace a configureApp(), importee depuis src/app-setup.ts.
  */
 const server = express();
+// Derriere le proxy Vercel : fait confiance a X-Forwarded-For pour obtenir la vraie
+// IP du client. Indispensable pour que la limitation de debit (throttler) compte par
+// utilisateur reel et non globalement pour tout le trafic.
+server.set('trust proxy', true);
+
 let ready: Promise<void> | null = null;
 
 async function bootstrap(): Promise<void> {

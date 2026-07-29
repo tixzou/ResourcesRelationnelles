@@ -9,6 +9,7 @@ import { siteConfig } from "@/config/site";
 import { fontSans } from "@/config/fonts";
 import NavbarComponent from "@/components/navbar";
 import Footer from "@/components/footer/footer";
+import CookieConsent from "@/components/cookie-consent";
 
 export const metadata: Metadata = {
   title: {
@@ -53,6 +54,7 @@ export default function RootLayout({
              <Footer/>
             </footer>
           </div>
+          <CookieConsent />
         </Providers>
       </body>
     </html>
