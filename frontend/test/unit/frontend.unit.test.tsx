@@ -49,7 +49,7 @@ describe('Unit tests frontend - composants principaux', () => {
 
     render(<NavbarComponent />);
 
-    expect(screen.getAllByText('Administration').length).toBeGreaterThan(0);
+    expect(screen.getAllByText('Espace Admin').length).toBeGreaterThan(0);
   });
 
   it('4. PublicResourcesList - affiche une carte ressource chargee depuis l API', async () => {

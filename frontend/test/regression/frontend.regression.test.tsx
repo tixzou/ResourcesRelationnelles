@@ -61,7 +61,7 @@ describe('Regression tests frontend - comportements a ne pas casser', () => {
 
     render(<AdminDashboard />);
 
-    expect(screen.getByText('Ressources & Catégories')).toBeInTheDocument();
+    expect(screen.getByText('Ressources & catégories')).toBeInTheDocument();
     expect(screen.queryByText('Comptes Citoyens')).not.toBeInTheDocument();
     expect(screen.queryByText('Statistiques & Exports')).not.toBeInTheDocument();
   });
