@@ -1,4 +1,5 @@
 "use client";
+import { API_URL } from "@/config/api";
 
 import { useEffect, useState } from "react";
 import { Button } from "@heroui/button";
@@ -24,7 +25,7 @@ export default function AdminUsersManager({ token, currentUserId, role }: { toke
     const fetchUsers = async () => {
         setLoading(true);
         try {
-            const res = await fetch("http://localhost:3001/admin/users", {
+            const res = await fetch(`${API_URL}/admin/users`, {
                 headers: { Authorization: `Bearer ${token}` }
             });
             const data = await res.json();
@@ -53,7 +54,7 @@ export default function AdminUsersManager({ token, currentUserId, role }: { toke
 
     const handleToggleActive = async (id: number, currentStatus: boolean) => {
         try {
-            const res = await fetch(`http://localhost:3001/admin/users/${id}/toggle-active`, {
+            const res = await fetch(`${API_URL}/admin/users/${id}/toggle-active`, {
                 method: "PATCH",
                 headers: { Authorization: `Bearer ${token}` }
             });
@@ -70,7 +71,7 @@ export default function AdminUsersManager({ token, currentUserId, role }: { toke
 
     const handleRoleChange = async (id: number, newRole: string) => {
         try {
-            const res = await fetch(`http://localhost:3001/admin/users/${id}/role`, {
+            const res = await fetch(`${API_URL}/admin/users/${id}/role`, {
                 method: "PATCH",
                 headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
                 body: JSON.stringify({ role: newRole })
@@ -93,7 +94,7 @@ export default function AdminUsersManager({ token, currentUserId, role }: { toke
     const confirmDelete = async () => {
         if (!userToDelete) return;
         try {
-            const res = await fetch(`http://localhost:3001/admin/users/${userToDelete}`, {
+            const res = await fetch(`${API_URL}/admin/users/${userToDelete}`, {
                 method: "DELETE", headers: { Authorization: `Bearer ${token}` }
             });
             if (res.ok) {

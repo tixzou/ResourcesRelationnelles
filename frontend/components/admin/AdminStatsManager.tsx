@@ -1,4 +1,5 @@
 "use client";
+import { API_URL } from "@/config/api";
 
 import { useEffect, useState, useCallback } from "react";
 import { Card, CardBody } from "@heroui/card";
@@ -22,7 +23,7 @@ export default function AdminStatsManager({ token }: { token: string }) {
     const [categoryId, setCategoryId] = useState<Set<string>>(new Set([]));
 
     useEffect(() => {
-        fetch("http://localhost:3001/category")
+        fetch(`${API_URL}/category`)
             .then(res => res.json())
             .then(data => { if (Array.isArray(data)) setCategories(data); })
             .catch(() => console.error("Erreur chargement des catégories"));
@@ -38,7 +39,7 @@ export default function AdminStatsManager({ token }: { token: string }) {
             const selectedCat = Array.from(categoryId)[0];
             if (selectedCat) queryParams.append("categoryId", selectedCat as string);
 
-            const res = await fetch(`http://localhost:3001/admin/stats?${queryParams.toString()}`, {
+            const res = await fetch(`${API_URL}/admin/stats?${queryParams.toString()}`, {
                 headers: { Authorization: `Bearer ${token}` }
             });
 
@@ -62,7 +63,7 @@ export default function AdminStatsManager({ token }: { token: string }) {
     const handleExport = async () => {
         setExporting(true);
         try {
-            const res = await fetch("http://localhost:3001/admin/stats/export", {
+            const res = await fetch(`${API_URL}/admin/stats/export`, {
                 headers: { Authorization: `Bearer ${token}` }
             });
 

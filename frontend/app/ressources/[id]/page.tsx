@@ -1,4 +1,5 @@
 "use client";
+import { API_URL } from "@/config/api";
 
 import { useEffect, useState, useCallback } from "react";
 import { useParams } from "next/navigation";
@@ -37,7 +38,7 @@ export default function RessourceDetail() {
       const headers: HeadersInit = {};
       if (token) headers["Authorization"] = `Bearer ${token}`;
 
-      const res = await fetch(`http://localhost:3001/ressource/${id}`, { headers });
+      const res = await fetch(`${API_URL}/ressource/${id}`, { headers });
       if (!res.ok) throw new Error("Ressource non trouvée");
       const data = await res.json();
       setRessource(data);
@@ -65,7 +66,7 @@ export default function RessourceDetail() {
     }));
 
     try {
-      const res = await fetch(`http://localhost:3001/ressource/${id}/favorite`, {
+      const res = await fetch(`${API_URL}/ressource/${id}/favorite`, {
         method: "POST",
         headers: { "Authorization": `Bearer ${token}` }
       });
@@ -89,7 +90,7 @@ export default function RessourceDetail() {
   const handlePostComment = async (content: string, parentId: number | null = null) => {
     if (!content.trim()) return;
     try {
-      const res = await fetch(`http://localhost:3001/comment`, {
+      const res = await fetch(`${API_URL}/comment`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -109,7 +110,7 @@ export default function RessourceDetail() {
   const handleConfirmDelete = async () => {
     if (!commentToDelete) return;
     try {
-      await fetch(`http://localhost:3001/comment/${commentToDelete}`, {
+      await fetch(`${API_URL}/comment/${commentToDelete}`, {
         method: "DELETE",
         headers: { "Authorization": `Bearer ${token}` }
       });

@@ -1,4 +1,5 @@
 "use client";
+import { API_URL } from "@/config/api";
 
 import { useEffect, useState } from "react";
 import { Input } from "@heroui/input";
@@ -20,7 +21,7 @@ export default function ResourcesPage() {
     useEffect(() => {
         const fetchCats = async () => {
             try {
-                const res = await fetch("http://localhost:3001/category");
+                const res = await fetch(`${API_URL}/category`);
                 const data = await res.json();
                 if (Array.isArray(data)) setAvailableCategories(data);
             } catch (error) {

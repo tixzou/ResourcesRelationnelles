@@ -1,4 +1,5 @@
 "use client";
+import { API_URL } from "@/config/api";
 
 import { useEffect, useState } from "react";
 import { Card, CardBody } from "@heroui/card";
@@ -16,7 +17,7 @@ export default function FavoriteResourcesList({ token }: { token: string }) {
     const fetchFavorites = async () => {
         setLoading(true);
         try {
-            const res = await fetch("http://localhost:3001/ressource/favorites/me", {
+            const res = await fetch(`${API_URL}/ressource/favorites/me`, {
                 headers: { Authorization: `Bearer ${token}` }
             });
             if (res.ok) {
@@ -36,7 +37,7 @@ export default function FavoriteResourcesList({ token }: { token: string }) {
 
     const handleRemoveFavorite = async (id: number) => {
         try {
-            const res = await fetch(`http://localhost:3001/ressource/${id}/favorite`, {
+            const res = await fetch(`${API_URL}/ressource/${id}/favorite`, {
                 method: "POST",
                 headers: { Authorization: `Bearer ${token}` }
             });

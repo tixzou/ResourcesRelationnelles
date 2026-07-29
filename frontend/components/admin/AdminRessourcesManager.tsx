@@ -1,4 +1,5 @@
 "use client";
+import { API_URL } from "@/config/api";
 
 import { useEffect, useState } from "react";
 import { Tabs, Tab } from "@heroui/tabs";
@@ -47,8 +48,8 @@ export default function AdminRessourcesManager({ token, role }: { token: string,
         setLoading(true);
         try {
             const [resRessources, resCats] = await Promise.all([
-                fetch("http://localhost:3001/admin/ressources", { headers: { Authorization: `Bearer ${token}` } }),
-                fetch("http://localhost:3001/category")
+                fetch(`${API_URL}/admin/ressources`, { headers: { Authorization: `Bearer ${token}` } }),
+                fetch(`${API_URL}/category`)
             ]);
             const dataR = await resRessources.json();
             const dataC = await resCats.json();
@@ -95,9 +96,9 @@ export default function AdminRessourcesManager({ token, role }: { token: string,
 
     const handleAction = async (id: number, action: "validate" | "suspend" | "delete") => {
         const urlMap = {
-            validate: `http://localhost:3001/admin/ressources/${id}/validate`,
-            suspend: `http://localhost:3001/admin/ressources/${id}/suspend`,
-            delete: `http://localhost:3001/admin/ressources/${id}`
+            validate: `${API_URL}/admin/ressources/${id}/validate`,
+            suspend: `${API_URL}/admin/ressources/${id}/suspend`,
+            delete: `${API_URL}/admin/ressources/${id}`
         };
         const methodMap = { validate: "PATCH", suspend: "PATCH", delete: "DELETE" };
 
@@ -109,7 +110,7 @@ export default function AdminRessourcesManager({ token, role }: { token: string,
     };
 
     const handleSaveRes = async () => {
-        const url = editingId ? `http://localhost:3001/admin/ressources/${editingId}` : `http://localhost:3001/ressource`;
+        const url = editingId ? `${API_URL}/admin/ressources/${editingId}` : `${API_URL}/ressource`;
         const method = editingId ? "PUT" : "POST";
         try {
             const res = await fetch(url, {
@@ -140,7 +141,7 @@ export default function AdminRessourcesManager({ token, role }: { token: string,
     const fetchComments = async (resId: number) => {
         setLoadingComments(true);
         try {
-            const res = await fetch(`http://localhost:3001/comment/ressource/${resId}`, {
+            const res = await fetch(`${API_URL}/comment/ressource/${resId}`, {
                 headers: { Authorization: `Bearer ${token}` }
             });
             if (res.ok) {
@@ -156,7 +157,7 @@ export default function AdminRessourcesManager({ token, role }: { token: string,
 
     const handleDeleteComment = async (commentId: number) => {
         try {
-            const res = await fetch(`http://localhost:3001/comment/admin/${commentId}`, {
+            const res = await fetch(`${API_URL}/comment/admin/${commentId}`, {
                 method: "DELETE", headers: { Authorization: `Bearer ${token}` }
             });
             if (res.ok) {
@@ -171,7 +172,7 @@ export default function AdminRessourcesManager({ token, role }: { token: string,
     const handlePostReply = async (parentId: number) => {
         if (!replyText.trim() || !activeResId) return;
         try {
-            const res = await fetch(`http://localhost:3001/comment`, {
+            const res = await fetch(`${API_URL}/comment`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
                 body: JSON.stringify({
@@ -245,7 +246,7 @@ export default function AdminRessourcesManager({ token, role }: { token: string,
     };
 
     const handleSaveCat = async () => {
-        const url = editingCatId ? `http://localhost:3001/category/${editingCatId}` : `http://localhost:3001/category`;
+        const url = editingCatId ? `${API_URL}/category/${editingCatId}` : `${API_URL}/category`;
         const method = editingCatId ? "PATCH" : "POST";
         try {
             const res = await fetch(url, {
@@ -262,7 +263,7 @@ export default function AdminRessourcesManager({ token, role }: { token: string,
 
     const handleDeleteCat = async (id: number) => {
         try {
-            const res = await fetch(`http://localhost:3001/category/${id}`, {
+            const res = await fetch(`${API_URL}/category/${id}`, {
                 method: "DELETE", headers: { Authorization: `Bearer ${token}` }
             });
             if (res.ok) {

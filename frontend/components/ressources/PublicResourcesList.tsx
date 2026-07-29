@@ -1,4 +1,5 @@
 "use client";
+import { API_URL } from "@/config/api";
 
 import { useEffect, useState } from "react";
 import { Card, CardHeader, CardBody, CardFooter } from "@heroui/card";
@@ -19,7 +20,7 @@ export default function PublicResourcesList({ search, category }: PublicResource
   useEffect(() => {
     const fetchRessources = async () => {
       try {
-        const res = await fetch("http://localhost:3001/ressource");
+        const res = await fetch(`${API_URL}/ressource`);
         const data = await res.json();
         if (res.ok && Array.isArray(data)) setRessources(data);
       } catch (error) {

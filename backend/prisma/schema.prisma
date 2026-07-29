@@ -4,7 +4,10 @@ datasource db {
 }
 
 generator client {
-  provider = "prisma-client-js"
+  provider      = "prisma-client-js"
+  // native : moteur pour le poste de dev local (Windows/Mac)
+  // rhel-openssl-3.0.x : moteur pour l'environnement Linux serverless de Vercel
+  binaryTargets = ["native", "rhel-openssl-3.0.x"]
 }
 
 generator erd {

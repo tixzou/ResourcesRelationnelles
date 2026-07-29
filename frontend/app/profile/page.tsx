@@ -1,4 +1,5 @@
 "use client";
+import { API_URL } from "@/config/api";
 
 import { useEffect, useState } from "react";
 import { useSession } from "next-auth/react";
@@ -48,7 +49,7 @@ export default function ProfilePage() {
         const fetchProfile = async () => {
             if (!token) return;
             try {
-                const res = await fetch("http://localhost:3001/user/profile", {
+                const res = await fetch(`${API_URL}/user/profile`, {
                     headers: { Authorization: `Bearer ${token}` }
                 });
                 if (res.ok) {
@@ -70,7 +71,7 @@ export default function ProfilePage() {
     const handleSaveProfile = async () => {
         setSaving(true);
         try {
-            const res = await fetch("http://localhost:3001/user/profile", {
+            const res = await fetch(`${API_URL}/user/profile`, {
                 method: "PATCH",
                 headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
                 body: JSON.stringify({ firstName, lastName, email })
@@ -106,7 +107,7 @@ export default function ProfilePage() {
         }
 
         try {
-            const res = await fetch("http://localhost:3001/user/profile/password", {
+            const res = await fetch(`${API_URL}/user/profile/password`, {
                 method: "PATCH",
                 headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
                 body: JSON.stringify({ oldPassword, newPassword })
