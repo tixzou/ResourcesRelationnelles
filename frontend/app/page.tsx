@@ -17,7 +17,7 @@ export default function HomePage() {
         <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-12 items-center relative z-10">
           <div className="flex flex-col gap-6 items-start text-left">
             <h1 className="text-white text-3xl sm:text-5xl font-bold leading-tight">
-              Construisons ensemble la <span className="text-[#FF7A00]">qualité</span> de nos relations
+              ensemble la <span className="text-[#FF7A00]">qualité</span> de nos relations
             </h1>
 
             <p className="text-blue-100 text-base sm:text-lg max-w-xl leading-relaxed">
