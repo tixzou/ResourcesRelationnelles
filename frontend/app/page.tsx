@@ -21,8 +21,8 @@ export default function HomePage() {
             </h1>
 
             <p className="text-blue-100 text-base sm:text-lg max-w-xl leading-relaxed">
-              (RE)Sources Relationnelles est votre plateforme institutionnelle dédiée à l&apos;épanouissement humain. 
-              Accédez à des centaines de contenus pour mieux communiquer, comprendre et grandir.
+              (RE)Sources Relationnelles est votre plateforme institutionnelle dédiée à l&apos;épanouissement humain
+              et à la qualité de nos relations. Accédez à des centaines de contenus pour mieux communiquer, comprendre et grandir.
             </p>
 
             <div className="flex flex-wrap gap-4 mt-2">
